@@ -1,7 +1,7 @@
-<title>Mobilidade no seu município</title>
+<title>Tarifa zero no seu município</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#103758">
-<meta name="description" content="Simulador da FNP: veja quanto o seu município recebe com o adicional de mobilidade, comparado ao adicional de FPM.">
+<meta name="description" content="Estimativa preliminar da FNP para a PEC 18/2026: veja o repasse simulado da tarifa zero aos fins de semana para os ônibus do seu município.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,9 +36,8 @@
     --linha-grupo: #F3F6FA;
     --hover-linha: #F7F9FC;
 
-    /* Cores das duas séries: mobilidade é a marca (azul), FPM é o neutro de comparação. */
+    /* Cor das barras de repasse. */
     --cor-mob: #1e4784;
-    --cor-fpm: #76879D;
     --trilho-barra: #edf1f5;
 
     --selo-cinza-fundo: #edf1f5; --selo-cinza-texto: #33435a;
@@ -82,7 +81,7 @@
         --cor-link: #94b8ff; --cor-foco: #94b8ff; --campo-borda: #5d6b7c;
         --cor-sobe: #86d9a6; --cor-desce: #fca5a5;
         --linha-tabela: #2b3544; --linha-grupo: #172030; --hover-linha: #243041;
-        --cor-mob: #94b8ff; --cor-fpm: #8b98a8; --trilho-barra: #2b3544;
+        --cor-mob: #94b8ff; --trilho-barra: #2b3544;
         --selo-cinza-fundo: #374151; --selo-cinza-texto: #d1d5db;
         --selo-azul-fundo: rgba(53, 103, 168, .25); --selo-azul-texto: #94b8ff;
         --selo-verde-fundo: rgba(28, 136, 70, .24); --selo-verde-texto: #86d9a6;
@@ -104,7 +103,7 @@
     --cor-link: #94b8ff; --cor-foco: #94b8ff; --campo-borda: #5d6b7c;
     --cor-sobe: #86d9a6; --cor-desce: #fca5a5;
     --linha-tabela: #2b3544; --linha-grupo: #172030; --hover-linha: #243041;
-    --cor-mob: #94b8ff; --cor-fpm: #8b98a8; --trilho-barra: #2b3544;
+    --cor-mob: #94b8ff; --trilho-barra: #2b3544;
     --selo-cinza-fundo: #374151; --selo-cinza-texto: #d1d5db;
     --selo-azul-fundo: rgba(53, 103, 168, .25); --selo-azul-texto: #94b8ff;
     --selo-verde-fundo: rgba(28, 136, 70, .24); --selo-verde-texto: #86d9a6;
@@ -320,12 +319,11 @@ main:focus { outline: none; }
 .bloco-subtitulo { font-size: .9375rem; line-height: 1.375rem; color: var(--cor-texto-suave); margin-top: .25rem; max-width: 70ch; }
 .bloco + .bloco { padding-top: 1.5rem; border-top: 1px solid var(--territorio-linha); }
 
-/* Barras pareadas: mobilidade em cima, FPM embaixo, mesma escala no gráfico todo. */
+/* Barras de repasse por habitante, mesma escala no gráfico todo. */
 .legenda { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .75rem; font-size: .875rem; color: var(--cor-texto-2); }
 .legenda-item { display: inline-flex; align-items: center; gap: .5rem; }
 .legenda-cor { width: .875rem; height: .875rem; border-radius: 3px; flex-shrink: 0; }
 .legenda-cor-mob { background: var(--cor-mob); }
-.legenda-cor-fpm { background: var(--cor-fpm); }
 .barras { display: grid; gap: .25rem; margin-top: 1rem; }
 .barra-linha {
     display: grid; grid-template-columns: minmax(0, 1fr); gap: .375rem .75rem; align-items: center;
@@ -341,7 +339,6 @@ main:focus { outline: none; }
 .barra-trilho { flex: 1 1 auto; height: .875rem; background: var(--trilho-barra); border-radius: 3px; overflow: hidden; min-width: 0; }
 .barra-preenchida { height: 100%; border-radius: 3px; }
 .barra-mob .barra-preenchida { background: var(--cor-mob); }
-.barra-fpm .barra-preenchida { background: var(--cor-fpm); }
 .barra-valor { flex: 0 0 8.5rem; font-size: .875rem; line-height: 1.25rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--cor-texto-2); }
 .barra-mob .barra-valor { color: var(--cor-texto); font-weight: 600; }
 
@@ -389,6 +386,20 @@ main:focus { outline: none; }
 .rodape { margin-top: 2rem; padding-top: .75rem; border-top: 1px solid var(--territorio-linha);
     display: flex; flex-wrap: wrap; justify-content: space-between; gap: .375rem 1.25rem; font-size: .875rem; line-height: 1.25rem; color: var(--tinta-2); }
 
+/* Um cartão só (município fora do rateio): não estica pela linha toda. */
+.kit-numeros-1 { grid-template-columns: minmax(0, 1fr) !important; max-width: 24rem; }
+
+/* Nota metodológica: texto do gerente de mobilidade, reproduzido sem alteração. */
+.nota { max-width: 75ch; }
+.nota-titulo { font-size: 1.125rem; line-height: 1.625rem; font-weight: 600; color: var(--cor-titulo); }
+.nota-subtitulo { font-size: .9375rem; color: var(--cor-texto-suave); margin-top: .125rem; }
+.nota h3 { font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--cor-titulo); margin: 1.25rem 0 .375rem; }
+.nota .tabela-rolagem { margin: .75rem 0 .75rem; }
+.nota .tabela tfoot td { font-weight: 600; background: var(--linha-grupo); border-bottom: 0; border-top: 1px solid var(--territorio-linha); }
+.nota-lista { margin: .5rem 0 0; padding-left: 1.125rem; display: grid; gap: .375rem; }
+.nota-lista li { font-size: .9375rem; line-height: 1.5rem; color: var(--cor-texto-2); }
+.metodo-separador { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--territorio-linha); }
+
 .carregando { padding: 2.5rem 1.25rem; text-align: center; color: var(--cor-texto-suave); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -417,9 +428,9 @@ main:focus { outline: none; }
         <section class="territorio-faixa territorio-com-mesa" aria-labelledby="titulo-pagina">
             <div class="territorio-faixa-grade">
                 <div class="territorio-faixa-texto">
-                    <p class="territorio-sobretitulo">Simulador do adicional de mobilidade</p>
-                    <h1 class="territorio-titulo" id="titulo-pagina">Quanto o seu município recebe com o adicional de mobilidade</h1>
-                    <p class="territorio-subtitulo">Digite o nome do município para comparar o que ele recebe pelo adicional de mobilidade com o que receberia pelo adicional de FPM.</p>
+                    <p class="territorio-sobretitulo">Tarifa zero aos fins de semana</p>
+                    <h1 class="territorio-titulo" id="titulo-pagina">Quanto o seu município recebe na simulação</h1>
+                    <p class="territorio-subtitulo">Estimativa preliminar da FNP para a PEC 18/2026. Digite o nome do município para ver o repasse simulado aos ônibus municipais.</p>
 
                     <form class="busca" id="form-busca" role="search" autocomplete="off" novalidate>
                         <label class="busca-rotulo" for="campo-busca">Nome do município</label>
@@ -437,14 +448,14 @@ main:focus { outline: none; }
                     </form>
 
                     <dl class="territorio-fatos" id="fatos" aria-label="Resumo nacional">
-                        <div class="territorio-fato"><dt>distribuídos pelo adicional de mobilidade</dt><dd id="fato-total">…</dd></div>
-                        <div class="territorio-fato"><dt>municípios contemplados</dt><dd id="fato-municipios">…</dd></div>
+                        <div class="territorio-fato"><dt>repasse simulado aos ônibus municipais</dt><dd id="fato-total">…</dd></div>
+                        <div class="territorio-fato"><dt>municípios incluídos no rateio</dt><dd id="fato-municipios">…</dd></div>
                         <div class="territorio-fato"><dt>da população vive nesses municípios</dt><dd id="fato-populacao">…</dd></div>
                     </dl>
                 </div>
                 <div class="territorio-faixa-mapa">
-                    <svg class="mapa-uf" id="mapa-uf" viewBox="0 0 304 348" role="group" aria-label="Parcela da população de cada estado que vive em municípios contemplados"></svg>
-                    <p class="mapa-legenda" id="mapa-legenda">Parcela da população de cada UF que vive em municípios contemplados.</p>
+                    <svg class="mapa-uf" id="mapa-uf" viewBox="0 0 304 348" role="group" aria-label="Parcela da população de cada estado que vive em municípios incluídos no rateio"></svg>
+                    <p class="mapa-legenda" id="mapa-legenda">Parcela da população de cada UF que vive em municípios incluídos no rateio.</p>
                 </div>
             </div>
         </section>
@@ -455,45 +466,75 @@ main:focus { outline: none; }
 
         <div class="chapados">
             <section class="chapado" aria-labelledby="titulo-porte">
-                <h2 class="bloco-titulo" id="titulo-porte">Por habitante, conforme o porte</h2>
+                <h2 class="bloco-titulo" id="titulo-porte">Repasse por habitante, conforme o porte</h2>
                 <p class="bloco-subtitulo" id="texto-porte"></p>
-                <div class="legenda" aria-hidden="true">
-                    <span class="legenda-item"><span class="legenda-cor legenda-cor-mob"></span>Adicional de mobilidade</span>
-                    <span class="legenda-item"><span class="legenda-cor legenda-cor-fpm"></span>Adicional de FPM</span>
-                </div>
                 <div class="barras" id="barras-porte"></div>
             </section>
             <section class="chapado" aria-labelledby="titulo-quintil">
-                <h2 class="bloco-titulo" id="titulo-quintil">Por habitante, conforme a receita do município</h2>
+                <h2 class="bloco-titulo" id="titulo-quintil">Repasse por habitante, conforme a receita do município</h2>
                 <p class="bloco-subtitulo" id="texto-quintil"></p>
-                <div class="legenda" aria-hidden="true">
-                    <span class="legenda-item"><span class="legenda-cor legenda-cor-mob"></span>Adicional de mobilidade</span>
-                    <span class="legenda-item"><span class="legenda-cor legenda-cor-fpm"></span>Adicional de FPM</span>
-                </div>
                 <div class="barras" id="barras-quintil"></div>
             </section>
-            <section class="chapado chapado-largo" aria-labelledby="titulo-metodo">
-                <h2 class="bloco-titulo" id="titulo-metodo">Como os números foram calculados</h2>
-                <div class="metodo">
-                    <div>
-                        <h3>De onde vêm os valores</h3>
-                        <p class="texto-corrido">Os valores do adicional de FPM e do adicional de mobilidade vêm da simulação da FNP para <strong id="metodo-total-municipios">5.537</strong> municípios.</p>
-                        <p class="texto-corrido">Os <span id="metodo-total-fora">34</span> municípios em que o transporte coletivo não é gerido pela prefeitura, mas pelo estado ou por consórcio metropolitano (como nas regiões de Recife, Aracaju, Vitória e Goiânia), não foram contemplados e ficaram fora da simulação; para eles a página mostra "não calculado".</p>
-                        <p class="texto-corrido">A diferença é o adicional de mobilidade menos o adicional de FPM. Positiva, o município recebe mais pela mobilidade.</p>
+
+            <section class="chapado chapado-largo" aria-labelledby="titulo-nota">
+                <!-- Texto da nota metodológica enviado pelo gerente de mobilidade: reproduzido
+                     sem alteração (inclusive a tabela e a lista de arranjos). Não editar o texto
+                     daqui sem uma nova versão da nota. -->
+                <div class="nota">
+                    <h2 class="nota-titulo" id="titulo-nota">Nota metodológica sobre a tarifa zero aos fins de semana</h2>
+                    <p class="nota-subtitulo">Estimativa preliminar da FNP para a PEC 18/2026</p>
+
+                    <h3>Estimativa dos custos</h3>
+                    <p class="texto-corrido">A estimativa parte de um custo operacional anual de R$ 90 bilhões, segundo a NTU. Desse total, R$ 75 bilhões correspondem aos ônibus urbanos e R$ 15 bilhões aos trens. A simulação divide o custo dos ônibus em R$ 60 bilhões para os municipais e R$ 15 bilhões para os intermunicipais.</p>
+                    <p class="texto-corrido">Para estimar o custo dos fins de semana, adotamos como premissa que operar aos sábados custa 60% do custo de um dia útil e, aos domingos, 40%. Assim, cada fim de semana equivale a um dia útil de operação. Em um ano com 261 dias de segunda a sexta e 52 fins de semana, isso corresponde a 52 de 313 dias equivalentes, ou 16,61% do custo anual, aproximadamente 17%.</p>
+
+                    <h3>Rateio dos recursos federais</h3>
+                    <p class="texto-corrido">No cenário de R$ 12 bilhões anuais em recursos federais, o rateio é proporcional ao custo estimado de cada segmento aos fins de semana. Dessa forma, o repasse cobre cerca de 80% do custo estimado em cada segmento.</p>
+                    <div class="tabela-rolagem">
+                        <table class="tabela">
+                            <caption class="sr-only">Custo e repasse simulado por segmento</caption>
+                            <thead><tr><th scope="col">Segmento</th><th scope="col" class="num">Custo anual</th><th scope="col" class="num">Custo aos fins de semana</th><th scope="col" class="num">Repasse simulado</th></tr></thead>
+                            <tbody>
+                                <tr><td>Ônibus municipais</td><td class="num">R$ 60 bi</td><td class="num">R$ 9,97 bi</td><td class="num">R$ 8,00 bi</td></tr>
+                                <tr><td>Ônibus intermunicipais urbanos</td><td class="num">R$ 15 bi</td><td class="num">R$ 2,49 bi</td><td class="num">R$ 2,00 bi</td></tr>
+                                <tr><td>Trens</td><td class="num">R$ 15 bi</td><td class="num">R$ 2,49 bi</td><td class="num">R$ 2,00 bi</td></tr>
+                            </tbody>
+                            <tfoot><tr><td>Total</td><td class="num">R$ 90 bi</td><td class="num">R$ 14,95 bi</td><td class="num">R$ 12,00 bi</td></tr></tfoot>
+                        </table>
                     </div>
-                    <div>
-                        <h3>Valores por habitante</h3>
-                        <p class="texto-corrido">Para cada município, o valor é dividido pela sua população. Para um grupo (estado, porte ou quintil), somamos os valores e dividimos pela população somada do grupo, para que cidades grandes e pequenas pesem conforme o número de habitantes.</p>
-                    </div>
-                    <div>
-                        <h3>Quintil de receita</h3>
-                        <p class="texto-corrido">O quintil vem do <a href="https://ifem.fnp.org.br/" target="_blank" rel="noopener">IFEM, Indicadores de Financiamento e Equidade Municipal</a>, da FNP. Os municípios são ordenados pela receita corrente por habitante e divididos em cinco grupos de tamanho parecido. O 1º quintil reúne os de menor receita por habitante, os mais subfinanciados; o 5º, os de maior receita.</p>
-                        <p class="texto-corrido">Municípios que ainda não declararam os dados de receita ao Siconfi ficaram fora do cálculo e aparecem como "sem quintil".</p>
-                    </div>
-                    <div>
-                        <h3>Porte</h3>
-                        <p class="texto-corrido">Faixas pela população: menos de 10 mil, de 10 mil a 30 mil, de 30 mil a 80 mil, de 80 mil a 250 mil, de 250 mil a 500 mil e mais de 500 mil habitantes.</p>
-                        <p class="texto-corrido">Esta página não guarda o que você digita.</p>
+                    <p class="texto-corrido">Os R$ 8 bilhões destinados aos ônibus municipais são distribuídos conforme a participação de cada município no custo total dos sistemas municipais incluídos no rateio. Quando o custo próprio está indisponível, a estimativa usa o custo médio por habitante de municípios de porte semelhante.</p>
+                    <p class="texto-corrido">A simulação considera pouco mais de 500 municípios com mais de 50 mil habitantes que declararam ter transporte público coletivo municipal na Pesquisa Nacional de Mobilidade Urbana (Pemob). É um número próximo ao dos 539 municípios que receberam o Auxílio Emergencial à Gratuidade das Pessoas Idosas no Transporte Público Coletivo Urbano em 2022. (MDR, 2022).</p>
+
+                    <h3>Arranjos metropolitanos excluídos do rateio municipal</h3>
+                    <p class="texto-corrido">Para fins da simulação, adotamos a premissa de que os arranjos metropolitanos abaixo são tratados no segmento intermunicipal. Por isso, os municípios listados ficam fora do rateio dos ônibus municipais.</p>
+                    <ul class="nota-lista">
+                        <li>Goiânia (GO) – Goiânia, Abadia de Goiás, Aparecida de Goiânia, Aragoiânia, Bela Vista de Goiás, Bonfinópolis, Brazabrantes, Caldazinha, Caturaí, Goianira, Goianápolis, Guapó, Hidrolândia, Inhumas, Nerópolis, Nova Veneza, Santa Bárbara de Goiás, Santo Antônio de Goiás, Senador Canedo, Terezópolis de Goiás e Trindade.</li>
+                        <li>Recife (PE) – Recife, Olinda e Camaragibe.</li>
+                        <li>Grande Vitória (ES) – Vitória, Vila Velha, Serra, Cariacica e Viana.</li>
+                        <li>Aracaju (SE) – Aracaju, Barra dos Coqueiros, Nossa Senhora do Socorro e São Cristóvão.</li>
+                    </ul>
+                    <p class="texto-corrido" style="margin-top: .75rem">Os valores são preliminares. Os repasses efetivos dependerão dos recursos disponíveis, das regras de distribuição e da adesão dos municípios em cada etapa.</p>
+                </div>
+
+                <div class="metodo-separador">
+                    <h2 class="bloco-titulo">Como ler esta página</h2>
+                    <div class="metodo">
+                        <div>
+                            <h3>Valores por habitante</h3>
+                            <p class="texto-corrido">Para cada município, o repasse simulado é dividido pela sua população. Para um grupo (estado, porte ou quintil), somamos os repasses e dividimos pela população somada do grupo, incluindo os municípios fora do rateio.</p>
+                        </div>
+                        <div>
+                            <h3>Quintil de receita</h3>
+                            <p class="texto-corrido">O quintil vem do <a href="https://ifem.fnp.org.br/" target="_blank" rel="noopener">IFEM, Indicadores de Financiamento e Equidade Municipal</a>, da FNP. O 1º quintil reúne os municípios de menor receita corrente por habitante; o 5º, os de maior. Municípios que ainda não declararam os dados de receita ao Siconfi ficaram fora do cálculo e aparecem como "sem quintil".</p>
+                        </div>
+                        <div>
+                            <h3>Porte</h3>
+                            <p class="texto-corrido">Faixas pela população: menos de 10 mil, de 10 mil a 30 mil, de 30 mil a 80 mil, de 80 mil a 250 mil, de 250 mil a 500 mil e mais de 500 mil habitantes.</p>
+                        </div>
+                        <div>
+                            <h3>Privacidade</h3>
+                            <p class="texto-corrido">Esta página não guarda o que você digita.</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -501,7 +542,7 @@ main:focus { outline: none; }
 
         <footer class="rodape">
             <span>Frente Nacional de Prefeitas e Prefeitos (FNP)</span>
-            <span>Dados: simulação FNP e IFEM</span>
+            <span>Estimativa preliminar da FNP para a PEC 18/2026</span>
         </footer>
     </div>
 </main>
@@ -515,6 +556,18 @@ main:focus { outline: none; }
 (function () {
     'use strict';
 
+    /* ================= Textos da nota metodológica (sem alteração) ================= */
+    // Frases usadas nos resultados, copiadas da nota do gerente de mobilidade.
+    var NOTA_PRELIMINAR = 'Os valores são preliminares. Os repasses efetivos dependerão dos recursos disponíveis, das regras de distribuição e da adesão dos municípios em cada etapa.';
+    var NOTA_CRITERIO = 'A simulação considera pouco mais de 500 municípios com mais de 50 mil habitantes que declararam ter transporte público coletivo municipal na Pesquisa Nacional de Mobilidade Urbana (Pemob).';
+    var NOTA_ARRANJOS = 'Para fins da simulação, adotamos a premissa de que os arranjos metropolitanos abaixo são tratados no segmento intermunicipal. Por isso, os municípios listados ficam fora do rateio dos ônibus municipais.';
+    var NOTA_LISTA_ARRANJO = {
+        'Goiânia (GO)': 'Goiânia (GO) – Goiânia, Abadia de Goiás, Aparecida de Goiânia, Aragoiânia, Bela Vista de Goiás, Bonfinópolis, Brazabrantes, Caldazinha, Caturaí, Goianira, Goianápolis, Guapó, Hidrolândia, Inhumas, Nerópolis, Nova Veneza, Santa Bárbara de Goiás, Santo Antônio de Goiás, Senador Canedo, Terezópolis de Goiás e Trindade.',
+        'Recife (PE)': 'Recife (PE) – Recife, Olinda e Camaragibe.',
+        'Grande Vitória (ES)': 'Grande Vitória (ES) – Vitória, Vila Velha, Serra, Cariacica e Viana.',
+        'Aracaju (SE)': 'Aracaju (SE) – Aracaju, Barra dos Coqueiros, Nossa Senhora do Socorro e São Cristóvão.'
+    };
+
     /* ================= Constantes ================= */
 
     // Faixas conferidas contra a coluna "Faixa populacional" da planilha (0 divergências).
@@ -526,19 +579,12 @@ main:focus { outline: none; }
         { limite: 500000, nome: 'De 250 mil a 500 mil hab.' },
         { limite: Infinity, nome: 'Mais de 500 mil hab.' }
     ];
+    var LIMITE_POPULACAO_NOTA = 50000;
     var NOMES_QUINTIL = {
-        1: '1º quintil de receita',
-        2: '2º quintil de receita',
-        3: '3º quintil de receita',
-        4: '4º quintil de receita',
-        5: '5º quintil de receita',
-        0: 'Sem quintil'
+        1: '1º quintil de receita', 2: '2º quintil de receita', 3: '3º quintil de receita',
+        4: '4º quintil de receita', 5: '5º quintil de receita', 0: 'Sem quintil'
     };
-    var DETALHE_QUINTIL = {
-        1: 'menor receita por habitante',
-        5: 'maior receita por habitante',
-        0: 'receita não declarada ao Siconfi'
-    };
+    var DETALHE_QUINTIL = { 1: 'menor receita por habitante', 5: 'maior receita por habitante', 0: 'receita não declarada ao Siconfi' };
     var NOMES_UF = {
         AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal',
         ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MG: 'Minas Gerais', MS: 'Mato Grosso do Sul', MT: 'Mato Grosso',
@@ -572,11 +618,10 @@ main:focus { outline: none; }
         { fundo: 'rgba(255,255,255,.7)', texto: '#103758' },
         { fundo: '#ffffff', texto: '#103758' }
     ];
-    // Exemplos da mesa inicial: São Paulo e Jaboatão dos Guararapes (maiores valores por
-    // habitante), Volta Redonda (ganha e está sem quintil), Petrolina (contemplada, mas
-    // recebe menos que no FPM). O menor município do país entra calculado.
-    // Recife não está na planilha (um dos 33 ausentes), por isso não aparece aqui.
-    var EXEMPLOS_IBGE = [3550308, 2607901, 3306305, 2611101];
+    // Exemplos da mesa inicial: São Paulo e Jaboatão dos Guararapes (maiores repasses por
+    // habitante), Volta Redonda (incluída e sem quintil), Recife (arranjo metropolitano,
+    // fora do rateio) e o menor município do país (calculado).
+    var EXEMPLOS_IBGE = [3550308, 2607901, 3306305, 2611606];
     var MAX_SUGESTOES = 8;
     var LINHAS_RANKING = 5;
 
@@ -598,8 +643,7 @@ main:focus { outline: none; }
         var p = partesReaisCurto(v);
         return 'R$ ' + p.numero + (p.unidade ? ' ' + p.unidade : '');
     }
-    function formatarPercentual(v) { return formatarNumero(v * 100, 1) + '%'; }
-    function sinal(v) { return v > 0 ? '+' : v < 0 ? '−' : ''; }
+    function formatarPercentual(v, casas) { return formatarNumero(v * 100, casas === undefined ? 1 : casas) + '%'; }
 
     /* ================= DOM sem innerHTML ================= */
     // Todo texto entra por textContent: nomes vêm de planilha e não devem virar HTML.
@@ -632,29 +676,27 @@ main:focus { outline: none; }
     function valorTextoGrande(texto) { return el('p', { classe: 'kit-numero-valor kit-numero-valor-texto', texto: texto }); }
     function valorReaisGrande(v) {
         var p = partesReaisCurto(v);
-        return el('p', { classe: 'kit-numero-valor' }, [
-            el('span', { classe: 'rs', texto: (v < 0 ? '−' : '') + 'R$' }),
-            p.numero.replace('-', '') + (p.unidade ? ' ' + p.unidade : '')
-        ]);
+        return el('p', { classe: 'kit-numero-valor' }, [el('span', { classe: 'rs', texto: 'R$' }), p.numero + (p.unidade ? ' ' + p.unidade : '')]);
     }
+    function valorSimplesGrande(texto) { return el('p', { classe: 'kit-numero-valor', texto: texto }); }
 
     /* ================= Dados ================= */
 
-    var estado = { municipios: [], porIbge: {}, agregados: null };
+    var estado = { municipios: [], porIbge: {}, agregados: null, quantidadeFora: 0, selecionado: null };
 
     function normalizar(texto) {
-        return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-            .replace(/[^a-z0-9]+/g, ' ').trim();
+        return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
     }
     function indiceFaixa(populacao) {
         for (var i = 0; i < FAIXAS.length; i++) if (populacao < FAIXAS[i].limite) return i;
         return FAIXAS.length - 1;
     }
-    function novoGrupo() { return { populacao: 0, fpm: 0, mob: 0, quantidade: 0, contemplados: 0, populacaoContemplada: 0 }; }
+    function novoGrupo() { return { populacao: 0, repasse: 0, quantidade: 0, incluidos: 0, populacaoIncluida: 0 }; }
     function somar(grupo, m) {
-        grupo.populacao += m.populacao; grupo.fpm += m.fpm; grupo.mob += m.mob; grupo.quantidade += 1;
-        if (m.mob > 0) { grupo.contemplados += 1; grupo.populacaoContemplada += m.populacao; }
+        grupo.populacao += m.populacao; grupo.repasse += m.repasse; grupo.quantidade += 1;
+        if (m.repasse > 0) { grupo.incluidos += 1; grupo.populacaoIncluida += m.populacao; }
     }
+    function porHabitante(grupo) { return grupo.populacao ? grupo.repasse / grupo.populacao : 0; }
 
     /** Lê o JSON embutido (versão de arquivo único) ou busca o arquivo ao lado da página. */
     function carregarDados() {
@@ -669,43 +711,43 @@ main:focus { outline: none; }
         });
     }
 
-    function prepararDados(bruto) {
+    function indicesColunas(nomes, esperadas) {
         var col = {};
-        bruto.colunas.forEach(function (nome, i) { col[nome] = i; });
-        ['ibge', 'nome', 'uf', 'populacao', 'quintil', 'fpm', 'mobilidade'].forEach(function (nome) {
-            if (col[nome] === undefined) throw new Error('Coluna ausente no JSON: ' + nome);
-        });
+        (nomes || []).forEach(function (nome, i) { col[nome] = i; });
+        esperadas.forEach(function (nome) { if (col[nome] === undefined) throw new Error('Coluna ausente no JSON: ' + nome); });
+        return col;
+    }
 
+    function prepararDados(bruto) {
+        var col = indicesColunas(bruto.colunas, ['ibge', 'nome', 'uf', 'populacao', 'quintil', 'repasse']);
         var brasil = novoGrupo(), porUf = {}, porFaixa = FAIXAS.map(novoGrupo), porQuintil = [0, 1, 2, 3, 4, 5].map(novoGrupo);
         var contagemNomes = {};
+        estado.municipios = [];
 
-        estado.municipios = bruto.municipios.map(function (linha) {
+        bruto.municipios.forEach(function (linha) {
             var m = {
                 ibge: linha[col.ibge], nome: linha[col.nome], uf: linha[col.uf], populacao: linha[col.populacao],
-                quintil: linha[col.quintil], fpm: linha[col.fpm], mob: linha[col.mobilidade]
+                quintil: linha[col.quintil], repasse: linha[col.repasse]
             };
-            m.diferenca = m.mob - m.fpm;
             m.faixa = indiceFaixa(m.populacao);
             m.chave = normalizar(m.nome);
-            m.palavras = m.chave.split(' ');
             contagemNomes[m.chave] = (contagemNomes[m.chave] || 0) + 1;
             somar(brasil, m);
             somar(porUf[m.uf] || (porUf[m.uf] = novoGrupo()), m);
             somar(porFaixa[m.faixa], m);
             somar(porQuintil[m.quintil], m);
             estado.porIbge[m.ibge] = m;
-            return m;
+            estado.municipios.push(m);
         });
 
-        // Municípios fora da simulação (transporte coletivo não gerido pela prefeitura):
-        // entram na busca com valores zerados, mas NÃO nos totais, médias e rankings,
-        // porque não têm população na base e distorceriam o "por habitante".
-        var colFora = {};
-        (bruto.colunas_fora || []).forEach(function (nome, i) { colFora[nome] = i; });
+        // Fora da planilha (arranjos metropolitanos da nota e Fernando de Noronha):
+        // entram na busca, mas NÃO nos totais, médias e rankings, porque não têm
+        // população na base e distorceriam o "por habitante".
+        var colFora = indicesColunas(bruto.colunas_fora, ['ibge', 'nome', 'uf', 'arranjo']);
         (bruto.fora || []).forEach(function (linha) {
             var m = {
-                ibge: linha[colFora.ibge], nome: linha[colFora.nome], uf: linha[colFora.uf],
-                populacao: 0, quintil: null, fpm: 0, mob: 0, diferenca: 0, foraDaSimulacao: true
+                ibge: linha[colFora.ibge], nome: linha[colFora.nome], uf: linha[colFora.uf], arranjo: linha[colFora.arranjo],
+                populacao: 0, quintil: null, repasse: 0, foraDaPlanilha: true
             };
             m.chave = normalizar(m.nome);
             contagemNomes[m.chave] = (contagemNomes[m.chave] || 0) + 1;
@@ -715,25 +757,23 @@ main:focus { outline: none; }
         estado.quantidadeFora = (bruto.fora || []).length;
         estado.municipios.forEach(function (m) { m.nomeRepetido = contagemNomes[m.chave] > 1; });
 
-        // Ranking por UF de quem recebe o adicional de mobilidade, do maior para o menor.
+        // Ranking por UF dos incluídos no rateio, do maior repasse para o menor.
         var rankingUf = {};
         estado.municipios.forEach(function (m) {
-            if (m.mob > 0) (rankingUf[m.uf] || (rankingUf[m.uf] = [])).push(m);
+            if (m.repasse > 0) (rankingUf[m.uf] || (rankingUf[m.uf] = [])).push(m);
         });
-        Object.keys(rankingUf).forEach(function (uf) { rankingUf[uf].sort(function (a, b) { return b.mob - a.mob; }); });
+        Object.keys(rankingUf).forEach(function (uf) { rankingUf[uf].sort(function (a, b) { return b.repasse - a.repasse; }); });
 
         estado.agregados = { brasil: brasil, porUf: porUf, porFaixa: porFaixa, porQuintil: porQuintil, rankingUf: rankingUf };
     }
-
-    function porHabitante(grupo, campo) { return grupo.populacao ? grupo[campo] / grupo.populacao : 0; }
 
     /* ================= Busca ================= */
 
     /**
      * Procura municípios pelo texto digitado.
      * Regras: ignora acento e caixa; se a última palavra for uma UF e houver mais
-     * palavras, filtra pela UF ("campinas sp"). Ordem: começa com o texto, depois
-     * alguma palavra começa com o texto, depois contém; empate pela população.
+     * palavras, filtra pela UF ("campinas sp"). Ordem: nome igual, começa com o texto,
+     * alguma palavra começa com o texto, contém; empate pela população.
      * @param {string} texto
      * @returns {Array} até MAX_SUGESTOES municípios
      */
@@ -755,7 +795,7 @@ main:focus { outline: none; }
             else return;
             achados.push({ m: m, nota: nota });
         });
-        // Fora da simulação têm população 0 e caem para o fim entre os de mesma nota.
+        // Os de fora da planilha têm população 0 e caem para o fim entre os de mesma nota.
         achados.sort(function (a, b) { return a.nota - b.nota || b.m.populacao - a.m.populacao; });
         return achados.slice(0, MAX_SUGESTOES).map(function (a) { return a.m; });
     }
@@ -778,7 +818,11 @@ main:focus { outline: none; }
         indiceAtivo = -1;
     }
     function nomeComUf(m) { return m.nome + ' (' + m.uf + ')'; }
-
+    function textoSemUf(texto) {
+        var partes = normalizar(texto).split(' ');
+        if (partes.length > 1 && NOMES_UF[partes[partes.length - 1].toUpperCase()]) partes.pop();
+        return partes.join(' ');
+    }
     function destacarTrecho(nome, consulta) {
         // Marca em negrito o trecho que casou, comparando sem acento mas exibindo o nome original.
         var chave = normalizar(textoSemUf(consulta));
@@ -791,26 +835,25 @@ main:focus { outline: none; }
         }).join('').toLowerCase();
         // Pontuação vira espaço, como em normalizar(). Nomes com dois sinais seguidos
         // ficam sem destaque, o que é aceitável: o destaque é só visual.
-        var semPontuacao = semAcento.replace(/[^a-z0-9]/g, ' ');
-        var pos = semPontuacao.indexOf(chave);
+        var pos = semAcento.replace(/[^a-z0-9]/g, ' ').indexOf(chave);
         if (pos === -1) return [nome];
         return [nome.slice(0, pos), el('mark', { texto: nome.slice(pos, pos + chave.length) }), nome.slice(pos + chave.length)];
     }
-    function textoSemUf(texto) {
-        var partes = normalizar(texto).split(' ');
-        if (partes.length > 1 && NOMES_UF[partes[partes.length - 1].toUpperCase()]) partes.pop();
-        return partes.join(' ');
+    function infoSugestao(m) {
+        if (m.foraDaPlanilha) return m.uf + ' · fora do rateio';
+        return m.uf + ' · ' + formatarNumero(m.populacao) + ' hab.';
     }
 
     function mostrarSugestoes() {
         var texto = campo.value;
         erroBusca.hidden = true;
         campo.removeAttribute('aria-invalid');
+        campo.setAttribute('aria-describedby', 'busca-ajuda');
         sugestoesAtuais = buscar(texto);
         limpar(lista);
         if (!normalizar(texto)) { fecharLista(); return; }
         if (!sugestoesAtuais.length) {
-            lista.appendChild(el('li', { classe: 'sugestoes-vazio', role: 'presentation', texto: 'Nenhum município com esse nome na base.' }));
+            lista.appendChild(el('li', { classe: 'sugestoes-vazio', role: 'presentation', texto: 'Nenhum município com esse nome.' }));
         }
         sugestoesAtuais.forEach(function (m, i) {
             lista.appendChild(el('li', {
@@ -819,7 +862,7 @@ main:focus { outline: none; }
                 onclick: function () { escolher(m); }
             }, [
                 el('span', { classe: 'sugestao-nome' }, destacarTrecho(m.nome, texto)),
-                el('span', { classe: 'sugestao-info', texto: m.uf + ' · ' + (m.foraDaSimulacao ? 'fora da simulação' : formatarNumero(m.populacao) + ' hab.') })
+                el('span', { classe: 'sugestao-info', texto: infoSugestao(m) })
             ]));
         });
         indiceAtivo = sugestoesAtuais.length ? 0 : -1;
@@ -841,9 +884,19 @@ main:focus { outline: none; }
         fecharLista();
         irPara(m);
     }
+    function mostrarErroBusca(mensagem) {
+        fecharLista();
+        erroBusca.textContent = mensagem;
+        erroBusca.hidden = false;
+        campo.setAttribute('aria-invalid', 'true');
+        campo.setAttribute('aria-describedby', 'busca-ajuda busca-erro');
+    }
 
     campo.addEventListener('input', mostrarSugestoes);
-    campo.addEventListener('focus', function () { if (campo.value && sugestoesAtuais.length && !estadoSelecionadoIgualCampo()) mostrarSugestoes(); });
+    campo.addEventListener('focus', function () {
+        var jaEscolhido = estado.selecionado && campo.value === nomeComUf(estado.selecionado);
+        if (campo.value && !jaEscolhido) mostrarSugestoes();
+    });
     campo.addEventListener('blur', function () { setTimeout(fecharLista, 120); });
     campo.addEventListener('keydown', function (evento) {
         var aberta = !lista.hidden && sugestoesAtuais.length;
@@ -862,10 +915,7 @@ main:focus { outline: none; }
     document.getElementById('form-busca').addEventListener('submit', function (evento) {
         evento.preventDefault();
         var texto = campo.value;
-        if (!normalizar(texto)) {
-            mostrarErroBusca('Digite o nome de um município.');
-            return;
-        }
+        if (!normalizar(texto)) { mostrarErroBusca('Digite o nome de um município.'); return; }
         var escolhido = (!lista.hidden && indiceAtivo >= 0 && sugestoesAtuais[indiceAtivo]) || buscar(texto)[0];
         if (!escolhido) {
             mostrarErroBusca('Não encontramos "' + texto.trim() + '" entre os ' + formatarNumero(estado.municipios.length) + ' municípios do país. Confira a grafia.');
@@ -873,21 +923,11 @@ main:focus { outline: none; }
         }
         escolher(escolhido);
     });
-    function mostrarErroBusca(mensagem) {
-        fecharLista();
-        erroBusca.textContent = mensagem;
-        erroBusca.hidden = false;
-        campo.setAttribute('aria-invalid', 'true');
-        campo.setAttribute('aria-describedby', 'busca-ajuda busca-erro');
-    }
-    function estadoSelecionadoIgualCampo() {
-        return estado.selecionado && campo.value === nomeComUf(estado.selecionado);
-    }
     window.addEventListener('resize', function () { if (!lista.hidden) posicionarLista(); });
 
     /* ================= Navegação por endereço (#ibge-3550308) ================= */
     // Permite mandar o link do resultado de um município. Só o hash simples passa
-    // pelo visualizador, então nada de query string.
+    // pelo visualizador de prévia, então nada de query string.
 
     function irPara(m) {
         var alvo = '#ibge-' + m.ibge;
@@ -913,38 +953,29 @@ main:focus { outline: none; }
     }
 
     /**
-     * Gráfico de barras pareadas (mobilidade e FPM por habitante).
-     * Todas as linhas usam a mesma escala, a do maior valor do gráfico.
-     * @param {Array<{rotulo:string, detalhe?:string, mob:number, fpm:number, atual?:boolean}>} linhas
+     * Barras de repasse por habitante, todas na escala do maior valor do gráfico.
+     * @param {Array<{rotulo:string, detalhe?:string, valor:number, atual?:boolean, textoValor?:string}>} linhas
+     *   textoValor substitui o número quando zero não é o que se quer dizer ("Não contemplado").
      */
-    function barrasPareadas(linhas) {
+    function barrasRepasse(linhas, id) {
         var maximo = 0;
-        linhas.forEach(function (l) { maximo = Math.max(maximo, l.mob, l.fpm); });
+        linhas.forEach(function (l) { maximo = Math.max(maximo, l.valor); });
         if (!maximo) maximo = 1;
-        return el('div', { classe: 'barras', role: 'list' }, linhas.map(function (l) {
-            // textoValor substitui o número quando zero não é o que se quer dizer ("Não contemplado").
-            function barra(tipo, valor, nome, textoValor) {
-                return el('div', { classe: 'barra barra-' + tipo }, [
-                    el('div', { classe: 'barra-trilho', 'aria-hidden': 'true' }, [
-                        el('div', { classe: 'barra-preenchida', style: 'width:' + (valor / maximo * 100).toFixed(2) + '%' })
-                    ]),
-                    el('span', { classe: 'barra-valor' }, [el('span', { classe: 'sr-only', texto: nome + ': ' }), textoValor || formatarReais(valor)])
-                ]);
-            }
+        var conteiner = el('div', { classe: 'barras', role: 'list', id: id || null }, linhas.map(function (l) {
             return el('div', { classe: 'barra-linha', role: 'listitem', 'aria-current': l.atual ? 'true' : null }, [
                 el('div', { classe: 'barra-rotulo' }, [l.rotulo, l.detalhe ? el('small', { texto: l.detalhe }) : null]),
-                el('div', { classe: 'barra-pares' }, [
-                    barra('mob', l.mob, 'Adicional de mobilidade por habitante', l.textoMob),
-                    barra('fpm', l.fpm, 'Adicional de FPM por habitante')
+                el('div', { classe: 'barra barra-mob' }, [
+                    el('div', { classe: 'barra-trilho', 'aria-hidden': 'true' }, [
+                        el('div', { classe: 'barra-preenchida', style: 'width:' + (l.valor / maximo * 100).toFixed(2) + '%' })
+                    ]),
+                    el('span', { classe: 'barra-valor' }, [
+                        el('span', { classe: 'sr-only', texto: 'Repasse por habitante: ' }),
+                        l.textoValor || formatarReais(l.valor)
+                    ])
                 ])
             ]);
         }));
-    }
-    function legendaBarras() {
-        return el('div', { classe: 'legenda', 'aria-hidden': 'true' }, [
-            el('span', { classe: 'legenda-item' }, [el('span', { classe: 'legenda-cor legenda-cor-mob' }), 'Adicional de mobilidade']),
-            el('span', { classe: 'legenda-item' }, [el('span', { classe: 'legenda-cor legenda-cor-fpm' }), 'Adicional de FPM'])
-        ]);
+        return conteiner;
     }
     function seloQuintil(q) {
         var classe = q === 0 ? 'selo selo-ambar' : q === 1 ? 'selo selo-azul' : 'selo';
@@ -952,101 +983,52 @@ main:focus { outline: none; }
         return el('span', { classe: classe, title: 'Quintil de receita corrente por habitante (IFEM)' },
             [NOMES_QUINTIL[q] + (detalhe ? ', ' + detalhe : '')]);
     }
+    function avisoPreliminar() {
+        return el('p', { classe: 'aviso aviso-atencao', role: 'status', texto: NOTA_PRELIMINAR });
+    }
     function botaoCopiarLink() {
-        var botao = el('button', { type: 'button', classe: 'btn btn-secondary btn-sm' }, ['Copiar link deste resultado']);
+        var rotulo = 'Copiar link deste resultado';
+        var botao = el('button', { type: 'button', classe: 'btn btn-secondary btn-sm' }, [rotulo]);
         botao.addEventListener('click', function () {
             var endereco = location.href;
-            var aviso = function (texto) { botao.textContent = texto; setTimeout(function () { botao.textContent = 'Copiar link deste resultado'; }, 2500); };
+            var avisar = function (texto) { botao.textContent = texto; setTimeout(function () { botao.textContent = rotulo; }, 2500); };
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(endereco).then(function () { aviso('Link copiado'); }, function (erro) {
+                navigator.clipboard.writeText(endereco).then(function () { avisar('Link copiado'); }, function (erro) {
                     console.error('Falha ao copiar o link', { endereco: endereco, erro: erro });
-                    aviso('Não deu para copiar; use a barra de endereço');
+                    avisar('Não deu para copiar; use a barra de endereço');
                 });
             } else {
-                aviso('Não deu para copiar; use a barra de endereço');
+                avisar('Não deu para copiar; use a barra de endereço');
             }
         });
         return botao;
     }
-
-    /* ================= Mesa: Brasil (estado inicial) ================= */
-
-    function mostrarBrasil() {
-        estado.selecionado = null;
-        var a = estado.agregados, br = a.brasil;
-        var mesa = document.getElementById('mesa');
-        limpar(mesa);
-
-        var menor = estado.municipios.filter(function (m) { return !m.foraDaSimulacao; })
-            .reduce(function (x, y) { return y.populacao < x.populacao ? y : x; });
-        var exemplos = EXEMPLOS_IBGE.map(function (c) { return estado.porIbge[c]; }).filter(Boolean).concat([menor]);
-
-        mesa.appendChild(el('div', { classe: 'mesa-cabecalho' }, [
+    function botaoVerBrasil() {
+        return el('button', { type: 'button', classe: 'btn btn-subtle btn-sm', onclick: function () {
+            campo.value = '';
+            if (location.hash) location.hash = ''; else mostrarBrasil();
+            campo.focus();
+        } }, ['Ver o Brasil']);
+    }
+    function cabecalhoMesa(sobretitulo, titulo, selos, comAcoes) {
+        return el('div', { classe: 'mesa-cabecalho' }, [
             el('div', { classe: 'mesa-identidade' }, [
-                el('p', { classe: 'mesa-sobretitulo', texto: 'Todos os municípios da simulação' }),
-                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: 'Brasil' }),
-                el('div', { classe: 'selos' }, [
-                    el('span', { classe: 'selo', texto: formatarNumero(br.quantidade) + ' municípios' }),
-                    el('span', { classe: 'selo', texto: formatarNumero(br.populacao) + ' habitantes' })
-                ])
-            ])
-        ]));
-
-        mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
-            el('p', { classe: 'lead' }, [
-                'O adicional de mobilidade distribui ', el('strong', { texto: formatarReaisCurto(br.mob) }),
-                ' entre ', el('strong', { texto: formatarNumero(br.contemplados) + ' municípios' }),
-                ', onde vivem ', el('strong', { texto: formatarPercentual(br.populacaoContemplada / br.populacao) }),
-                ' dos brasileiros. Por habitante, são ', el('strong', { texto: formatarReais(porHabitante(br, 'mob')) }),
-                ', contra ', formatarReais(porHabitante(br, 'fpm')), ' do adicional de FPM.'
+                el('p', { classe: 'mesa-sobretitulo', texto: sobretitulo }),
+                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: titulo }),
+                el('div', { classe: 'selos' }, selos)
             ]),
-            el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Totais do Brasil' }, [
-                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(br.mob),
-                    detalhe: [el('span', { classe: 'num', texto: formatarReais(porHabitante(br, 'mob')) }), ' por habitante'] }),
-                cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(br.fpm),
-                    detalhe: [el('span', { classe: 'num', texto: formatarReais(porHabitante(br, 'fpm')) }), ' por habitante'] }),
-                cartaoNumero({ classe: br.mob >= br.fpm ? 'kit-numero-sobe' : 'kit-numero-desce', rotulo: 'Diferença', valor: valorReaisGrande(br.mob - br.fpm),
-                    detalhe: ['Mobilidade menos FPM'] })
-            ]),
-            el('div', { classe: 'bloco' }, [
-                el('h3', { classe: 'bloco-titulo', texto: 'Veja um exemplo' }),
-                el('p', { classe: 'bloco-subtitulo', texto: 'Ou digite o nome do seu município no campo acima.' }),
-                el('div', { classe: 'exemplos' }, exemplos.map(function (m) {
-                    return el('button', { type: 'button', classe: 'chip', onclick: function () { escolher(m); } }, [nomeComUf(m)]);
-                }))
-            ])
-        ]));
+            comAcoes ? el('div', { classe: 'mesa-acoes' }, [botaoCopiarLink(), botaoVerBrasil()]) : null
+        ]);
+    }
+    function concluirMesa(m, rolar) {
+        var mesa = document.getElementById('mesa');
         mesa.setAttribute('aria-busy', 'false');
-        atualizarMapa(null);
-        atualizarGraficosNacionais(null);
-        document.title = 'Mobilidade no seu município';
+        atualizarMapa(m ? m.uf : null);
+        atualizarGraficosNacionais(m && !m.foraDaPlanilha ? m : null);
+        document.title = m ? nomeComUf(m) + ' · Tarifa zero no seu município' : 'Tarifa zero no seu município';
+        if (m) document.getElementById('anuncio').textContent = 'Resultado de ' + nomeComUf(m) + ' carregado.';
+        if (rolar) rolarParaMesa();
     }
-
-    /* ================= Mesa: município ================= */
-
-    function fraseMunicipio(m) {
-        var nome = el('strong', { texto: m.nome });
-        if (m.mob > 0 && m.mob > m.fpm) {
-            var vezes = m.fpm > 0 ? m.mob / m.fpm : 0;
-            return [
-                'Com o adicional de mobilidade, ', nome, ' recebe ', el('strong', { texto: formatarReaisCurto(m.mob) }), ', ',
-                el('span', { classe: 'sobe', texto: formatarReaisCurto(m.diferenca) + ' a mais' }),
-                ' do que pelo adicional de FPM' + (vezes >= 2 ? ', ' + formatarNumero(vezes, 1) + ' vezes o valor.' : '.')
-            ];
-        }
-        if (m.mob > 0) {
-            return [
-                'Com o adicional de mobilidade, ', nome, ' recebe ', el('strong', { texto: formatarReaisCurto(m.mob) }),
-                '. Pelo adicional de FPM, receberia ', el('strong', { texto: formatarReaisCurto(m.fpm) }), '.'
-            ];
-        }
-        return [
-            nome, ' não foi contemplado pelo adicional de mobilidade: ele não está entre os ', formatarNumero(estado.agregados.brasil.contemplados),
-            ' municípios que recebem o recurso. Pelo adicional de FPM, receberia ',
-            el('strong', { texto: formatarReaisCurto(m.fpm) }), '.'
-        ];
-    }
-
     function rolarParaMesa() {
         var mesa = document.getElementById('mesa');
         var topo = mesa.getBoundingClientRect().top;
@@ -1056,89 +1038,128 @@ main:focus { outline: none; }
         }
     }
 
-    /** Município fora da planilha: tudo zerado, com o motivo. Sem médias nem ranking. */
-    function mostrarForaDaSimulacao(m, rolar) {
-        estado.selecionado = m;
+    /* ================= Mesa: Brasil (estado inicial) ================= */
+
+    function mostrarBrasil() {
+        estado.selecionado = null;
+        var br = estado.agregados.brasil;
         var mesa = document.getElementById('mesa');
         limpar(mesa);
-        mesa.appendChild(el('div', { classe: 'mesa-cabecalho' }, [
-            el('div', { classe: 'mesa-identidade' }, [
-                el('p', { classe: 'mesa-sobretitulo', texto: NOMES_UF[m.uf] + ' · código IBGE ' + m.ibge }),
-                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: nomeComUf(m) }),
-                el('div', { classe: 'selos' }, [el('span', { classe: 'selo', texto: 'Fora da simulação' })])
-            ]),
-            el('div', { classe: 'mesa-acoes' }, [botaoCopiarLink(), botaoVerBrasil()])
-        ]));
+
+        var menor = estado.municipios.filter(function (m) { return !m.foraDaPlanilha; })
+            .reduce(function (x, y) { return y.populacao < x.populacao ? y : x; });
+        var exemplos = EXEMPLOS_IBGE.map(function (c) { return estado.porIbge[c]; }).filter(Boolean).concat([menor]);
+
+        mesa.appendChild(cabecalhoMesa('Ônibus municipais, todo o país', 'Brasil', [
+            el('span', { classe: 'selo', texto: formatarNumero(estado.municipios.length) + ' municípios' }),
+            el('span', { classe: 'selo selo-verde', texto: formatarNumero(br.incluidos) + ' incluídos no rateio' })
+        ], false));
+
         mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
             el('p', { classe: 'lead' }, [
-                el('strong', { texto: m.nome }),
-                ' não foi contemplado pelo adicional de mobilidade: o transporte coletivo do município não é gerido pela prefeitura. Por isso ele ficou fora da simulação e os valores não foram calculados.'
+                'Na simulação, os ', el('strong', { texto: formatarReaisCurto(br.repasse) }),
+                ' por ano destinados aos ônibus municipais são distribuídos entre ',
+                el('strong', { texto: formatarNumero(br.incluidos) + ' municípios' }), ', onde vivem ',
+                el('strong', { texto: formatarPercentual(br.populacaoIncluida / br.populacao) }), ' dos brasileiros.'
             ]),
-            el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
-                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorTextoGrande('Não contemplado'),
-                    detalhe: ['Transporte não gerido pela prefeitura'] }),
-                cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorTextoGrande('Não calculado'), detalhe: ['Fora da simulação'] }),
-                cartaoNumero({ rotulo: 'Diferença', valor: valorTextoGrande('Não calculado'), detalhe: ['Fora da simulação'] })
+            el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Totais do Brasil' }, [
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Repasse simulado aos ônibus municipais', valor: valorReaisGrande(br.repasse),
+                    detalhe: ['por ano'] }),
+                cartaoNumero({ rotulo: 'Municípios incluídos no rateio', valor: valorSimplesGrande(formatarNumero(br.incluidos)),
+                    detalhe: ['de ' + formatarNumero(estado.municipios.length) + ' municípios do país'] }),
+                cartaoNumero({ rotulo: 'Repasse por habitante', valor: valorReaisGrande(br.repasse / br.populacaoIncluida),
+                    detalhe: ['nos municípios incluídos no rateio'] })
             ]),
-            el('p', { classe: 'aviso aviso-info', role: 'status' }, [
-                'Não foram contemplados e ficaram fora da simulação os ' + formatarNumero(estado.quantidadeFora) + ' municípios em que o transporte coletivo é gerido pelo estado ou por consórcio metropolitano, como nas regiões de Recife, Aracaju, Vitória e Goiânia.'
+            avisoPreliminar(),
+            el('div', { classe: 'bloco' }, [
+                el('h3', { classe: 'bloco-titulo', texto: 'Veja um exemplo' }),
+                el('p', { classe: 'bloco-subtitulo', texto: 'Ou digite o nome do seu município no campo acima.' }),
+                el('div', { classe: 'exemplos' }, exemplos.map(function (m) {
+                    return el('button', { type: 'button', classe: 'chip', onclick: function () { escolher(m); } }, [nomeComUf(m)]);
+                }))
             ])
         ]));
-        mesa.setAttribute('aria-busy', 'false');
-        atualizarMapa(m.uf);
-        atualizarGraficosNacionais(null);
-        document.title = nomeComUf(m) + ' · Mobilidade no seu município';
-        document.getElementById('anuncio').textContent = 'Resultado de ' + nomeComUf(m) + ' carregado.';
-        if (rolar) rolarParaMesa();
+        concluirMesa(null, false);
     }
 
-    function botaoVerBrasil() {
-        return el('button', { type: 'button', classe: 'btn btn-subtle btn-sm', onclick: function () {
-            campo.value = '';
-            if (location.hash) location.hash = ''; else mostrarBrasil();
-            campo.focus();
-        } }, ['Ver o Brasil']);
+    /* ================= Mesa: município fora da planilha ================= */
+
+    function mostrarForaDaPlanilha(m, rolar) {
+        var mesa = document.getElementById('mesa');
+        limpar(mesa);
+        mesa.appendChild(cabecalhoMesa(NOMES_UF[m.uf] + ' · código IBGE ' + m.ibge, nomeComUf(m), [
+            el('span', { classe: 'selo', texto: 'Fora do rateio dos ônibus municipais' }),
+            m.arranjo ? el('span', { classe: 'selo selo-azul', texto: 'Arranjo metropolitano ' + m.arranjo }) : null
+        ], true));
+
+        var explicacao = m.arranjo
+            ? el('div', { classe: 'aviso aviso-info', role: 'status' }, [
+                el('p', { texto: NOTA_ARRANJOS }),
+                el('p', { style: 'margin-top:.5rem', texto: NOTA_LISTA_ARRANJO[m.arranjo] || m.arranjo })
+            ])
+            : el('p', { classe: 'aviso aviso-info', role: 'status', texto: NOTA_CRITERIO });
+
+        mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
+            el('p', { classe: 'lead' }, [el('strong', { texto: m.nome }), ' não foi contemplado no rateio dos ônibus municipais.']),
+            el('div', { classe: 'kit-numeros kit-numeros-1', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Repasse simulado', valor: valorTextoGrande('Não calculado'),
+                    detalhe: [m.arranjo ? 'Tratado no segmento intermunicipal' : 'Fora do rateio dos ônibus municipais'] })
+            ]),
+            explicacao,
+            avisoPreliminar()
+        ]));
+        estado.selecionado = m;
+        concluirMesa(m, rolar);
     }
+
+    /* ================= Mesa: município da planilha ================= */
 
     function mostrarMunicipio(m, rolar) {
-        if (m.foraDaSimulacao) { mostrarForaDaSimulacao(m, rolar); return; }
+        if (m.foraDaPlanilha) { mostrarForaDaPlanilha(m, rolar); return; }
         estado.selecionado = m;
-        var a = estado.agregados, uf = a.porUf[m.uf], faixa = a.porFaixa[m.faixa], quintil = a.porQuintil[m.quintil];
+        var a = estado.agregados, br = a.brasil, uf = a.porUf[m.uf], faixa = a.porFaixa[m.faixa], quintil = a.porQuintil[m.quintil];
+        var incluido = m.repasse > 0;
+        var porHab = m.repasse / m.populacao;
         var mesa = document.getElementById('mesa');
         limpar(mesa);
 
-        var mobHab = m.mob / m.populacao, fpmHab = m.fpm / m.populacao;
-
-        mesa.appendChild(el('div', { classe: 'mesa-cabecalho' }, [
-            el('div', { classe: 'mesa-identidade' }, [
-                el('p', { classe: 'mesa-sobretitulo', texto: NOMES_UF[m.uf] + ' · código IBGE ' + m.ibge }),
-                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: nomeComUf(m) }),
-                el('div', { classe: 'selos' }, [
-                    m.mob > 0 ? el('span', { classe: 'selo selo-verde', texto: 'Contemplado pela mobilidade' }) : el('span', { classe: 'selo', texto: 'Não contemplado pela mobilidade' }),
-                    el('span', { classe: 'selo', texto: formatarNumero(m.populacao) + ' habitantes' }),
-                    seloQuintil(m.quintil)
-                ])
-            ]),
-            el('div', { classe: 'mesa-acoes' }, [
-                botaoCopiarLink(),
-                botaoVerBrasil()
-            ])
-        ]));
+        mesa.appendChild(cabecalhoMesa(NOMES_UF[m.uf] + ' · código IBGE ' + m.ibge, nomeComUf(m), [
+            incluido ? el('span', { classe: 'selo selo-verde', texto: 'Incluído no rateio' }) : el('span', { classe: 'selo', texto: 'Não contemplado' }),
+            el('span', { classe: 'selo', texto: formatarNumero(m.populacao) + ' habitantes' }),
+            seloQuintil(m.quintil)
+        ], true));
 
         var corpo = el('div', { classe: 'mesa-corpo' });
-        corpo.appendChild(el('p', { classe: 'lead' }, fraseMunicipio(m)));
 
-        corpo.appendChild(el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
-            m.mob > 0
-                ? cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(m.mob),
-                    detalhe: [el('span', { classe: 'num', texto: formatarReais(mobHab) }), ' por habitante'] })
-                : cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorTextoGrande('Não contemplado'),
-                    detalhe: ['Não recebe o adicional de mobilidade'] }),
-            cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(m.fpm),
-                detalhe: [el('span', { classe: 'num', texto: formatarReais(fpmHab) }), ' por habitante'] }),
-            cartaoNumero({ classe: m.diferenca > 0 ? 'kit-numero-sobe' : m.diferenca < 0 ? 'kit-numero-desce' : '', rotulo: 'Diferença', valor: valorReaisGrande(m.diferenca),
-                detalhe: [el('span', { classe: 'num', texto: sinal(m.diferenca) + formatarReais(Math.abs(m.diferenca)) }), ' pela mobilidade'] })
-        ]));
+        if (incluido) {
+            corpo.appendChild(el('p', { classe: 'lead' }, [
+                'Na simulação, ', el('strong', { texto: m.nome }), ' recebe ', el('strong', { texto: formatarReaisCurto(m.repasse) }),
+                ' por ano para a tarifa zero aos fins de semana nos ônibus municipais, ',
+                el('strong', { texto: formatarReais(porHab) }), ' por habitante.'
+            ]));
+            corpo.appendChild(el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Repasse simulado', valor: valorReaisGrande(m.repasse),
+                    detalhe: [el('span', { classe: 'num', texto: formatarReais(m.repasse) }), ' por ano'] }),
+                cartaoNumero({ rotulo: 'Repasse por habitante', valor: valorReaisGrande(porHab),
+                    detalhe: ['Média dos incluídos: ', el('span', { classe: 'num', texto: formatarReais(br.repasse / br.populacaoIncluida) })] }),
+                cartaoNumero({ rotulo: 'Participação no rateio', valor: valorSimplesGrande(formatarPercentual(m.repasse / br.repasse, 2)),
+                    detalhe: ['dos ' + formatarReaisCurto(br.repasse) + ' aos ônibus municipais'] })
+            ]));
+        } else {
+            var motivo = m.populacao < LIMITE_POPULACAO_NOTA
+                ? m.nome + ' tem ' + formatarNumero(m.populacao) + ' habitantes.'
+                : m.nome + ' tem mais de 50 mil habitantes, mas não está entre os municípios incluídos no rateio.';
+            corpo.appendChild(el('p', { classe: 'lead' }, [el('strong', { texto: m.nome }), ' não foi contemplado no rateio dos ônibus municipais.']));
+            corpo.appendChild(el('div', { classe: 'kit-numeros kit-numeros-1', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Repasse simulado', valor: valorTextoGrande('Não contemplado'),
+                    detalhe: ['Fora do rateio dos ônibus municipais'] })
+            ]));
+            corpo.appendChild(el('div', { classe: 'aviso aviso-info', role: 'status' }, [
+                el('p', { texto: NOTA_CRITERIO }),
+                el('p', { style: 'margin-top:.5rem', texto: motivo + ' ' + emUfMaiusculo(m.uf) + ', ' + formatarNumero(uf.incluidos) + ' de ' +
+                    formatarNumero(uf.quantidade) + ' municípios estão incluídos no rateio.' })
+            ]));
+        }
 
         if (m.quintil === 0) {
             corpo.appendChild(el('p', { classe: 'aviso aviso-atencao', role: 'status' }, [
@@ -1146,44 +1167,28 @@ main:focus { outline: none; }
                 m.nome + ' ainda não declarou os dados de receita ao Siconfi, por isso ficou fora do cálculo de quintis do IFEM.'
             ]));
         }
-        if (m.mob === 0) {
-            corpo.appendChild(el('p', { classe: 'aviso aviso-info', role: 'status' }, [
-                el('strong', { texto: m.nome + ' não foi contemplado. ' }),
-                'O adicional de mobilidade se concentra nos municípios com mais de 50 mil habitantes, onde vive a maior parte da população. Os ',
-                formatarNumero(a.brasil.contemplados), ' contemplados reúnem ',
-                formatarPercentual(a.brasil.populacaoContemplada / a.brasil.populacao), ' da população; ', emUf(m.uf), ', ',
-                formatarPercentual(uf.populacaoContemplada / uf.populacao), ' dos moradores vivem num deles.'
-            ]));
-        }
+        corpo.appendChild(avisoPreliminar());
 
         // Comparação por habitante com os grupos a que o município pertence.
         var linhas = [
-            { rotulo: m.nome, detalhe: 'este município', mob: mobHab, fpm: fpmHab, atual: true,
-                textoMob: m.mob > 0 ? null : 'Não contemplado' },
-            { rotulo: NOMES_UF[m.uf], detalhe: formatarNumero(uf.quantidade) + ' municípios', mob: porHabitante(uf, 'mob'), fpm: porHabitante(uf, 'fpm') },
-            { rotulo: FAIXAS[m.faixa].nome, detalhe: 'mesmo porte', mob: porHabitante(faixa, 'mob'), fpm: porHabitante(faixa, 'fpm') }
+            { rotulo: m.nome, detalhe: 'este município', valor: porHab, atual: true, textoValor: incluido ? null : 'Não contemplado' },
+            { rotulo: NOMES_UF[m.uf], detalhe: formatarNumero(uf.quantidade) + ' municípios', valor: porHabitante(uf) },
+            { rotulo: FAIXAS[m.faixa].nome, detalhe: 'mesmo porte', valor: porHabitante(faixa) }
         ];
-        if (m.quintil) linhas.push({ rotulo: NOMES_QUINTIL[m.quintil], detalhe: 'mesma faixa de receita', mob: porHabitante(quintil, 'mob'), fpm: porHabitante(quintil, 'fpm') });
-        linhas.push({ rotulo: 'Brasil', detalhe: 'todos os municípios', mob: porHabitante(a.brasil, 'mob'), fpm: porHabitante(a.brasil, 'fpm') });
+        if (m.quintil) linhas.push({ rotulo: NOMES_QUINTIL[m.quintil], detalhe: 'mesma faixa de receita', valor: porHabitante(quintil) });
+        linhas.push({ rotulo: 'Brasil', detalhe: 'todos os municípios', valor: porHabitante(br) });
 
         corpo.appendChild(el('section', { classe: 'bloco', 'aria-labelledby': 'titulo-comparacao' }, [
-            el('h3', { classe: 'bloco-titulo', id: 'titulo-comparacao', texto: 'Por habitante, comparado a municípios parecidos' }),
-            el('p', { classe: 'bloco-subtitulo', texto: 'Valor de cada adicional dividido pela população. Nos grupos, a soma dos valores sobre a população somada.' }),
-            legendaBarras(),
-            barrasPareadas(linhas)
+            el('h3', { classe: 'bloco-titulo', id: 'titulo-comparacao', texto: 'Repasse por habitante, comparado a municípios parecidos' }),
+            el('p', { classe: 'bloco-subtitulo', texto: 'Repasse simulado dividido pela população. Nos grupos, a soma dos repasses sobre a população somada, incluindo quem está fora do rateio.' }),
+            barrasRepasse(linhas)
         ]));
 
         corpo.appendChild(blocoRanking(m, uf));
         mesa.appendChild(corpo);
-        mesa.setAttribute('aria-busy', 'false');
-
-        atualizarMapa(m.uf);
-        atualizarGraficosNacionais(m);
-        document.title = nomeComUf(m) + ' · Mobilidade no seu município';
-        document.getElementById('anuncio').textContent = 'Resultado de ' + nomeComUf(m) + ' carregado.';
-
-        if (rolar) rolarParaMesa();
+        concluirMesa(m, rolar);
     }
+    function emUfMaiusculo(uf) { var t = emUf(uf); return t.charAt(0).toUpperCase() + t.slice(1); }
 
     /** Tabela com os que mais recebem na UF; o município escolhido aparece mesmo fora do topo. */
     function blocoRanking(m, uf) {
@@ -1191,12 +1196,12 @@ main:focus { outline: none; }
         var posicao = ranking.indexOf(m);
         var resumo;
         if (!ranking.length) {
-            resumo = 'Nenhum município ' + deUf(m.uf) + ' é contemplado pelo adicional de mobilidade nesta simulação.';
+            resumo = 'Nenhum município ' + deUf(m.uf) + ' está incluído no rateio dos ônibus municipais nesta simulação.';
         } else if (posicao >= 0) {
-            resumo = m.nome + ' é o ' + (posicao + 1) + 'º que mais recebe entre os ' + ranking.length + ' municípios contemplados ' + deUf(m.uf) + '.';
+            resumo = m.nome + ' é o ' + (posicao + 1) + 'º maior repasse entre os ' + ranking.length + ' municípios ' + deUf(m.uf) + ' incluídos no rateio.';
         } else {
-            resumo = ranking.length + ' de ' + formatarNumero(uf.quantidade) + ' municípios ' + deUf(m.uf) + ' são contemplados. Neles vivem ' +
-                formatarPercentual(uf.populacaoContemplada / uf.populacao) + ' dos moradores do estado.';
+            resumo = ranking.length + ' de ' + formatarNumero(uf.quantidade) + ' municípios ' + deUf(m.uf) + ' estão incluídos no rateio. Neles vivem ' +
+                formatarPercentual(uf.populacaoIncluida / uf.populacao) + ' dos moradores do estado.';
         }
 
         var bloco = el('section', { classe: 'bloco', 'aria-labelledby': 'titulo-ranking' }, [
@@ -1211,8 +1216,8 @@ main:focus { outline: none; }
                 el('td', { classe: 'num', texto: (i + 1) + 'º' }),
                 el('td', {}, [x === m ? x.nome : el('button', { type: 'button', classe: 'link-tabela', onclick: function () { escolher(x); } }, [x.nome])]),
                 el('td', { classe: 'num', texto: formatarNumero(x.populacao) }),
-                el('td', { classe: 'num', texto: formatarReais(x.mob) }),
-                el('td', { classe: 'num', texto: formatarReais(x.mob / x.populacao) })
+                el('td', { classe: 'num', texto: formatarReais(x.repasse) }),
+                el('td', { classe: 'num', texto: formatarReais(x.repasse / x.populacao) })
             ]);
         }
         ranking.slice(0, LINHAS_RANKING).forEach(function (x, i) { corpoTabela.appendChild(linha(x, i)); });
@@ -1222,12 +1227,12 @@ main:focus { outline: none; }
         }
         bloco.appendChild(el('div', { classe: 'tabela-rolagem' }, [
             el('table', { classe: 'tabela' }, [
-                el('caption', { classe: 'sr-only', texto: 'Municípios ' + deUf(m.uf) + ' que mais recebem o adicional de mobilidade' }),
+                el('caption', { classe: 'sr-only', texto: 'Municípios ' + deUf(m.uf) + ' com os maiores repasses simulados' }),
                 el('thead', {}, [el('tr', {}, [
                     el('th', { classe: 'num', scope: 'col', texto: 'Posição' }),
                     el('th', { scope: 'col', texto: 'Município' }),
                     el('th', { classe: 'num', scope: 'col', texto: 'População' }),
-                    el('th', { classe: 'num', scope: 'col', texto: 'Adicional de mobilidade' }),
+                    el('th', { classe: 'num', scope: 'col', texto: 'Repasse simulado' }),
                     el('th', { classe: 'num', scope: 'col', texto: 'Por habitante' })
                 ])]),
                 corpoTabela
@@ -1240,15 +1245,13 @@ main:focus { outline: none; }
 
     function preencherFatos() {
         var br = estado.agregados.brasil;
-        var p = partesReaisCurto(br.mob);
+        var p = partesReaisCurto(br.repasse);
         var fatoTotal = document.getElementById('fato-total');
         limpar(fatoTotal);
         fatoTotal.appendChild(el('span', { classe: 'rs', texto: 'R$' }));
         fatoTotal.appendChild(document.createTextNode(p.numero + ' ' + p.unidade));
-        document.getElementById('fato-municipios').textContent = formatarNumero(br.contemplados);
-        document.getElementById('fato-populacao').textContent = formatarNumero(br.populacaoContemplada / br.populacao * 100, 0) + '%';
-        document.getElementById('metodo-total-municipios').textContent = formatarNumero(br.quantidade);
-        document.getElementById('metodo-total-fora').textContent = formatarNumero(estado.quantidadeFora);
+        document.getElementById('fato-municipios').textContent = formatarNumero(br.incluidos);
+        document.getElementById('fato-populacao').textContent = formatarNumero(br.populacaoIncluida / br.populacao * 100, 0) + '%';
     }
 
     function atualizarMapa(ufDestaque) {
@@ -1257,12 +1260,12 @@ main:focus { outline: none; }
         var porUf = estado.agregados.porUf;
         Object.keys(GRADE_UF).forEach(function (uf) {
             var g = porUf[uf];
-            var parcela = g ? g.populacaoContemplada / g.populacao : 0;
-            // Degrau: 0 quando ninguém é contemplado; senão 1..5 pela parcela (0 a 100%).
+            var parcela = g ? g.populacaoIncluida / g.populacao : 0;
+            // Degrau: 0 quando ninguém está incluído; senão 1..5 pela parcela (0 a 100%).
             var degrau = parcela > 0 ? Math.max(1, Math.ceil(parcela * 5)) : 0;
             var cor = uf === ufDestaque ? { fundo: '#eeaf19', texto: '#103758' } : DEGRAUS_MAPA[degrau];
             var x = GRADE_UF[uf][0] * 44, y = GRADE_UF[uf][1] * 44;
-            var grupo = svgEl('g', { role: 'img', 'aria-label': NOMES_UF[uf] + ': ' + formatarPercentual(parcela) + ' da população em municípios contemplados' });
+            var grupo = svgEl('g', { role: 'img', 'aria-label': NOMES_UF[uf] + ': ' + formatarPercentual(parcela) + ' da população em municípios incluídos no rateio' });
             grupo.appendChild(svgEl('title', {}, NOMES_UF[uf] + ': ' + formatarPercentual(parcela)));
             grupo.appendChild(svgEl('rect', { x: x, y: y, width: 40, height: 40, rx: 6, fill: cor.fundo }));
             grupo.appendChild(svgEl('text', { x: x + 5, y: y + 14, fill: cor.texto, 'font-family': 'Work Sans, sans-serif', 'font-size': 10, 'font-weight': 600 }, uf));
@@ -1270,9 +1273,8 @@ main:focus { outline: none; }
                 formatarNumero(parcela * 100, 0) + '%'));
             svg.appendChild(grupo);
         });
-        document.getElementById('mapa-legenda').textContent = ufDestaque
-            ? 'Parcela da população de cada UF que vive em municípios contemplados. Em amarelo, ' + NOMES_UF[ufDestaque] + '.'
-            : 'Parcela da população de cada UF que vive em municípios contemplados.';
+        document.getElementById('mapa-legenda').textContent = 'Parcela da população de cada UF que vive em municípios incluídos no rateio.' +
+            (ufDestaque ? ' Em amarelo, ' + NOMES_UF[ufDestaque] + '.' : '');
     }
 
     /* ================= Gráficos nacionais (blocos chapados) ================= */
@@ -1283,31 +1285,27 @@ main:focus { outline: none; }
         var linhasPorte = a.porFaixa.map(function (g, i) {
             return {
                 rotulo: FAIXAS[i].nome, detalhe: formatarPercentual(g.populacao / br.populacao) + ' da população',
-                mob: porHabitante(g, 'mob'), fpm: porHabitante(g, 'fpm'), atual: m && m.faixa === i
+                valor: porHabitante(g), atual: m && m.faixa === i
             };
         });
-        var menores = a.porFaixa[0], maiores = a.porFaixa[FAIXAS.length - 1];
+        var maiores = a.porFaixa[FAIXAS.length - 1];
         document.getElementById('texto-porte').textContent =
-            'O adicional de FPM paga ' + formatarReais(porHabitante(menores, 'fpm')) + ' por habitante nas cidades com menos de 10 mil habitantes e ' +
-            formatarReais(porHabitante(maiores, 'fpm')) + ' nas com mais de 500 mil, onde vive ' + formatarPercentual(maiores.populacao / br.populacao) +
-            ' da população. O de mobilidade chega a ' + formatarReais(porHabitante(maiores, 'mob')) + ' por habitante nessas cidades.';
-        var alvoPorte = document.getElementById('barras-porte');
-        alvoPorte.replaceWith(Object.assign(barrasPareadas(linhasPorte), { id: 'barras-porte' }));
+            'O repasse chega a ' + formatarReais(porHabitante(maiores)) + ' por habitante nas cidades com mais de 500 mil habitantes, onde vive ' +
+            formatarPercentual(maiores.populacao / br.populacao) + ' da população. Municípios com menos de 50 mil habitantes ficam fora do rateio.';
+        document.getElementById('barras-porte').replaceWith(barrasRepasse(linhasPorte, 'barras-porte'));
 
         var linhasQuintil = [1, 2, 3, 4, 5, 0].map(function (q) {
             var g = a.porQuintil[q];
             return {
                 rotulo: NOMES_QUINTIL[q], detalhe: DETALHE_QUINTIL[q] || formatarNumero(g.quantidade) + ' municípios',
-                mob: porHabitante(g, 'mob'), fpm: porHabitante(g, 'fpm'), atual: m && m.quintil === q
+                valor: porHabitante(g), atual: m && m.quintil === q
             };
         });
         var q1 = a.porQuintil[1];
         document.getElementById('texto-quintil').textContent =
-            'No 1º quintil, os municípios com menor receita por habitante, o adicional de mobilidade paga ' + formatarReais(porHabitante(q1, 'mob')) +
-            ' por habitante, contra ' + formatarReais(porHabitante(q1, 'fpm')) + ' do adicional de FPM. Nesse grupo vive ' +
-            formatarPercentual(q1.populacao / br.populacao) + ' da população.';
-        var alvoQuintil = document.getElementById('barras-quintil');
-        alvoQuintil.replaceWith(Object.assign(barrasPareadas(linhasQuintil), { id: 'barras-quintil' }));
+            'No 1º quintil, os municípios com menor receita por habitante, o repasse é de ' + formatarReais(porHabitante(q1)) +
+            ' por habitante. Nesse grupo vive ' + formatarPercentual(q1.populacao / br.populacao) + ' da população.';
+        document.getElementById('barras-quintil').replaceWith(barrasRepasse(linhasQuintil, 'barras-quintil'));
     }
 
     /* ================= Início ================= */

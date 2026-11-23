@@ -1,12 +1,21 @@
-# Simulador do adicional de mobilidade (FNP)
+# Tarifa zero no seu município (FNP)
 
-Página pública em que a pessoa digita o nome do município e vê quanto ele recebe
-com o adicional de mobilidade, comparado ao adicional de FPM. Visual na
-identidade "Território" da FNP (guia de estilo da FNP).
+Página pública em que a pessoa digita o nome do município e vê o repasse simulado
+aos ônibus municipais na estimativa preliminar da FNP para a PEC 18/2026 (tarifa
+zero aos fins de semana). Visual na identidade "Território" da FNP.
 
 A mecânica segue a calculadora de salário do Nexo: a página não calcula nada
 pesado, ela consulta uma tabela pronta (gerada da planilha) e monta frases,
 cartões e barras.
+
+O texto da metodologia é a "Nota metodológica sobre a tarifa zero aos fins de
+semana", enviada pela gerência de mobilidade, reproduzida sem alteração em
+`site/index.html` (seção "Nota metodológica" e constantes `NOTA_*` do script).
+Mudou a nota? Atualize os dois lugares e a constante `ARRANJOS` de
+`scripts/gerar_dados.py`.
+
+O site fala só do repasse da tarifa zero. As colunas de FPM da planilha servem
+apenas para conferir a consistência dela e não vão para o JSON nem para a página.
 
 ## Estrutura
 
@@ -19,8 +28,7 @@ site/dados-municipios.json    gerado; não editar à mão
 docs/index.html               gerado; é o que o GitHub Pages publica
 ```
 
-A planilha `.xlsx` não vai para o repositório (`.gitignore`); o JSON gerado é a
-fonte que a página usa.
+A planilha `.xlsx` não vai para o repositório (`.gitignore`).
 
 ## Atualizar os dados
 
@@ -31,9 +39,9 @@ python scripts/montar_html_unico.py
 git add site docs && git commit -m "chore: atualiza dados da simulação"
 ```
 
-`gerar_dados.py` confere o cabeçalho, códigos IBGE repetidos ou inexistentes e
-se a coluna de diferença é mesmo mobilidade menos FPM; se algo não bater, para
-com a linha do problema em vez de gerar dado errado.
+`gerar_dados.py` confere o cabeçalho, códigos IBGE repetidos ou inexistentes, a
+consistência da planilha e se os municípios dos arranjos da nota batem com o IBGE;
+se algo não bater, para com a linha do problema em vez de gerar dado errado.
 
 Para atualizar a lista do IBGE (só se surgir município novo):
 
@@ -43,25 +51,27 @@ curl -sf "https://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=ni
 
 ## Publicar (GitHub Pages)
 
-Em Settings > Pages do repositório: Source "Deploy from a branch", branch
-`main`, pasta `/docs`. Cada push na `main` atualiza o site em alguns minutos.
+Settings > Pages: "Deploy from a branch", branch `main`, pasta `/docs`. Cada push
+na `main` atualiza o site em alguns minutos.
 
 Não há servidor, banco nem cookie; a página não guarda o que a pessoa digita.
 Depende só do Google Fonts (Outfit e Work Sans); sem ele, cai na fonte do sistema.
 
 Link direto para um município: `.../#ibge-3550308` (código IBGE de 7 dígitos).
 
-## Regras de leitura dos dados
+## Como a página trata cada município
 
-- Faixa populacional é derivada da população: <10 mil, <30 mil, <80 mil,
-  <250 mil, <500 mil, 500 mil ou mais (conferido: 0 divergências com a planilha).
-- Quintil vem do IFEM (https://ifem.fnp.org.br/): 1º = menor receita corrente
-  por habitante. Quintil vazio = município que ainda não declarou receita ao
-  Siconfi; a página mostra "Sem quintil".
-- Valores por habitante de grupos são ponderados pela população
-  (soma dos valores / soma das populações).
-- Municípios da lista do IBGE que não estão na planilha (34: regiões
-  metropolitanas de Recife, Aracaju, Vitória e Goiânia, e Fernando de Noronha)
-  são aqueles em que o transporte coletivo não é gerido pela prefeitura. Eles
-  aparecem na busca como "não contemplado" (mobilidade) e "não calculado" (FPM e
-  diferença) e ficam fora de totais, médias e rankings.
+- **Incluído no rateio** (repasse > 0): repasse simulado por ano, por habitante,
+  participação nos R$ 8 bi, comparação por habitante e ranking no estado.
+- **Na planilha, sem repasse**: "Não contemplado", com o critério da nota (mais de
+  50 mil habitantes e transporte coletivo municipal declarado na Pemob).
+- **Arranjos metropolitanos da nota** (Goiânia, Recife, Grande Vitória, Aracaju;
+  33 municípios fora da planilha): "Não calculado", com o texto da nota sobre o
+  segmento intermunicipal e a linha do arranjo.
+- **Fernando de Noronha** (fora da planilha, sem arranjo): "Não calculado", com o
+  critério da nota.
+
+Outras regras: faixa populacional derivada da população (0 divergências com a
+planilha); quintil do IFEM (https://ifem.fnp.org.br/), 1º = menor receita por
+habitante, vazio = receita não declarada ao Siconfi; valores por habitante de
+grupos = soma dos repasses / soma das populações.
