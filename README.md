@@ -63,4 +63,5 @@ Link direto para um município: `.../#ibge-3550308` (código IBGE de 7 dígitos)
 - Municípios da lista do IBGE que não estão na planilha (34: regiões
   metropolitanas de Recife, Aracaju, Vitória e Goiânia, e Fernando de Noronha)
   são aqueles em que o transporte coletivo não é gerido pela prefeitura. Eles
-  aparecem na busca com valores zerados e ficam fora de totais, médias e rankings.
+  aparecem na busca como "não contemplado" (mobilidade) e "não calculado" (FPM e
+  diferença) e ficam fora de totais, médias e rankings.

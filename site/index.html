@@ -295,6 +295,8 @@ main:focus { outline: none; }
     margin-top: .25rem; font-family: var(--fonte-titulo); font-size: 2.125rem; line-height: 1.1; font-weight: 300;
     color: var(--cor-titulo); font-variant-numeric: tabular-nums; letter-spacing: -.01em; overflow-wrap: anywhere;
 }
+/* Valor por extenso ("Não contemplado", "Não calculado") no lugar do número. */
+.kit-numero-valor-texto { font-size: 1.5rem; line-height: 2.125rem; font-weight: 400; }
 .kit-numero-detalhe { margin-top: .375rem; font-size: .875rem; line-height: 1.25rem; color: var(--cor-texto-suave); }
 .kit-numero-detalhe .num { white-space: nowrap; }
 .kit-numero-sobe .kit-numero-valor { color: var(--cor-sobe); }
@@ -340,7 +342,7 @@ main:focus { outline: none; }
 .barra-preenchida { height: 100%; border-radius: 3px; }
 .barra-mob .barra-preenchida { background: var(--cor-mob); }
 .barra-fpm .barra-preenchida { background: var(--cor-fpm); }
-.barra-valor { flex: 0 0 6.25rem; font-size: .875rem; line-height: 1.25rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--cor-texto-2); }
+.barra-valor { flex: 0 0 8.5rem; font-size: .875rem; line-height: 1.25rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--cor-texto-2); }
 .barra-mob .barra-valor { color: var(--cor-texto); font-weight: 600; }
 
 /* Tabela (guia, 5.8). */
@@ -476,7 +478,7 @@ main:focus { outline: none; }
                     <div>
                         <h3>De onde vêm os valores</h3>
                         <p class="texto-corrido">Os valores do adicional de FPM e do adicional de mobilidade vêm da simulação da FNP para <strong id="metodo-total-municipios">5.537</strong> municípios.</p>
-                        <p class="texto-corrido">Os <span id="metodo-total-fora">34</span> municípios em que o transporte coletivo não é gerido pela prefeitura, mas pelo estado ou por consórcio metropolitano (como nas regiões de Recife, Aracaju, Vitória e Goiânia), ficam fora da simulação e aparecem com valores zerados.</p>
+                        <p class="texto-corrido">Os <span id="metodo-total-fora">34</span> municípios em que o transporte coletivo não é gerido pela prefeitura, mas pelo estado ou por consórcio metropolitano (como nas regiões de Recife, Aracaju, Vitória e Goiânia), não foram contemplados e ficaram fora da simulação; para eles a página mostra "não calculado".</p>
                         <p class="texto-corrido">A diferença é o adicional de mobilidade menos o adicional de FPM. Positiva, o município recebe mais pela mobilidade.</p>
                     </div>
                     <div>
@@ -627,6 +629,7 @@ main:focus { outline: none; }
         return no;
     }
     function limpar(no) { while (no.firstChild) no.removeChild(no.firstChild); }
+    function valorTextoGrande(texto) { return el('p', { classe: 'kit-numero-valor kit-numero-valor-texto', texto: texto }); }
     function valorReaisGrande(v) {
         var p = partesReaisCurto(v);
         return el('p', { classe: 'kit-numero-valor' }, [
@@ -919,18 +922,19 @@ main:focus { outline: none; }
         linhas.forEach(function (l) { maximo = Math.max(maximo, l.mob, l.fpm); });
         if (!maximo) maximo = 1;
         return el('div', { classe: 'barras', role: 'list' }, linhas.map(function (l) {
-            function barra(tipo, valor, nome) {
+            // textoValor substitui o número quando zero não é o que se quer dizer ("Não contemplado").
+            function barra(tipo, valor, nome, textoValor) {
                 return el('div', { classe: 'barra barra-' + tipo }, [
                     el('div', { classe: 'barra-trilho', 'aria-hidden': 'true' }, [
                         el('div', { classe: 'barra-preenchida', style: 'width:' + (valor / maximo * 100).toFixed(2) + '%' })
                     ]),
-                    el('span', { classe: 'barra-valor' }, [el('span', { classe: 'sr-only', texto: nome + ': ' }), formatarReais(valor)])
+                    el('span', { classe: 'barra-valor' }, [el('span', { classe: 'sr-only', texto: nome + ': ' }), textoValor || formatarReais(valor)])
                 ]);
             }
             return el('div', { classe: 'barra-linha', role: 'listitem', 'aria-current': l.atual ? 'true' : null }, [
                 el('div', { classe: 'barra-rotulo' }, [l.rotulo, l.detalhe ? el('small', { texto: l.detalhe }) : null]),
                 el('div', { classe: 'barra-pares' }, [
-                    barra('mob', l.mob, 'Adicional de mobilidade por habitante'),
+                    barra('mob', l.mob, 'Adicional de mobilidade por habitante', l.textoMob),
                     barra('fpm', l.fpm, 'Adicional de FPM por habitante')
                 ])
             ]);
@@ -1037,8 +1041,8 @@ main:focus { outline: none; }
             ];
         }
         return [
-            nome, ' não está entre os ', formatarNumero(estado.agregados.brasil.contemplados),
-            ' municípios contemplados pelo adicional de mobilidade. Pelo adicional de FPM, receberia ',
+            nome, ' não foi contemplado pelo adicional de mobilidade: ele não está entre os ', formatarNumero(estado.agregados.brasil.contemplados),
+            ' municípios que recebem o recurso. Pelo adicional de FPM, receberia ',
             el('strong', { texto: formatarReaisCurto(m.fpm) }), '.'
         ];
     }
@@ -1068,15 +1072,16 @@ main:focus { outline: none; }
         mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
             el('p', { classe: 'lead' }, [
                 el('strong', { texto: m.nome }),
-                ' aparece com valores zerados: o transporte coletivo do município não é gerido pela prefeitura, por isso ele fica fora da simulação.'
+                ' não foi contemplado pelo adicional de mobilidade: o transporte coletivo do município não é gerido pela prefeitura. Por isso ele ficou fora da simulação e os valores não foram calculados.'
             ]),
             el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
-                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(0) }),
-                cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(0) }),
-                cartaoNumero({ rotulo: 'Diferença', valor: valorReaisGrande(0) })
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorTextoGrande('Não contemplado'),
+                    detalhe: ['Transporte não gerido pela prefeitura'] }),
+                cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorTextoGrande('Não calculado'), detalhe: ['Fora da simulação'] }),
+                cartaoNumero({ rotulo: 'Diferença', valor: valorTextoGrande('Não calculado'), detalhe: ['Fora da simulação'] })
             ]),
             el('p', { classe: 'aviso aviso-info', role: 'status' }, [
-                'Ficam fora da simulação os ' + formatarNumero(estado.quantidadeFora) + ' municípios em que o transporte coletivo é gerido pelo estado ou por consórcio metropolitano, como nas regiões de Recife, Aracaju, Vitória e Goiânia.'
+                'Não foram contemplados e ficaram fora da simulação os ' + formatarNumero(estado.quantidadeFora) + ' municípios em que o transporte coletivo é gerido pelo estado ou por consórcio metropolitano, como nas regiões de Recife, Aracaju, Vitória e Goiânia.'
             ])
         ]));
         mesa.setAttribute('aria-busy', 'false');
@@ -1124,8 +1129,11 @@ main:focus { outline: none; }
         corpo.appendChild(el('p', { classe: 'lead' }, fraseMunicipio(m)));
 
         corpo.appendChild(el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
-            cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(m.mob),
-                detalhe: [el('span', { classe: 'num', texto: formatarReais(mobHab) }), ' por habitante'] }),
+            m.mob > 0
+                ? cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(m.mob),
+                    detalhe: [el('span', { classe: 'num', texto: formatarReais(mobHab) }), ' por habitante'] })
+                : cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorTextoGrande('Não contemplado'),
+                    detalhe: ['Não recebe o adicional de mobilidade'] }),
             cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(m.fpm),
                 detalhe: [el('span', { classe: 'num', texto: formatarReais(fpmHab) }), ' por habitante'] }),
             cartaoNumero({ classe: m.diferenca > 0 ? 'kit-numero-sobe' : m.diferenca < 0 ? 'kit-numero-desce' : '', rotulo: 'Diferença', valor: valorReaisGrande(m.diferenca),
@@ -1140,6 +1148,7 @@ main:focus { outline: none; }
         }
         if (m.mob === 0) {
             corpo.appendChild(el('p', { classe: 'aviso aviso-info', role: 'status' }, [
+                el('strong', { texto: m.nome + ' não foi contemplado. ' }),
                 'O adicional de mobilidade se concentra nos municípios com mais de 50 mil habitantes, onde vive a maior parte da população. Os ',
                 formatarNumero(a.brasil.contemplados), ' contemplados reúnem ',
                 formatarPercentual(a.brasil.populacaoContemplada / a.brasil.populacao), ' da população; ', emUf(m.uf), ', ',
@@ -1149,7 +1158,8 @@ main:focus { outline: none; }
 
         // Comparação por habitante com os grupos a que o município pertence.
         var linhas = [
-            { rotulo: m.nome, detalhe: 'este município', mob: mobHab, fpm: fpmHab, atual: true },
+            { rotulo: m.nome, detalhe: 'este município', mob: mobHab, fpm: fpmHab, atual: true,
+                textoMob: m.mob > 0 ? null : 'Não contemplado' },
             { rotulo: NOMES_UF[m.uf], detalhe: formatarNumero(uf.quantidade) + ' municípios', mob: porHabitante(uf, 'mob'), fpm: porHabitante(uf, 'fpm') },
             { rotulo: FAIXAS[m.faixa].nome, detalhe: 'mesmo porte', mob: porHabitante(faixa, 'mob'), fpm: porHabitante(faixa, 'fpm') }
         ];
