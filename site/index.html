@@ -400,6 +400,70 @@ main:focus { outline: none; }
 .nota-lista li { font-size: .9375rem; line-height: 1.5rem; color: var(--cor-texto-2); }
 .metodo-separador { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--territorio-linha); }
 
+/* Grid da mesa: sem minmax(0, 1fr), a tabela do ranking alarga a coluna e a
+   mesa inteira passa da largura da tela no celular. */
+.mesa-corpo { grid-template-columns: minmax(0, 1fr); }
+.mesa-corpo > * { min-width: 0; }
+.col-celular { display: none; }
+
+/* ---------- Celular (até 639px) ---------- */
+@media (max-width: 639px) {
+    .casca { padding-block: .75rem 1.5rem; }
+    .territorio-faixa { padding: 1.25rem 1rem 1.5rem; }
+    .territorio-faixa.territorio-com-mesa { padding-bottom: 4.75rem; }
+    .territorio-sobretitulo { font-size: .875rem; }
+    .territorio-titulo { font-size: 1.875rem; line-height: 1.12; }
+    .territorio-subtitulo { font-size: 1rem; line-height: 1.5; margin-top: .5rem; }
+    .busca { margin-top: 1.25rem; }
+    .busca-linha { flex-direction: column; }
+    .busca-campo-envoltorio { flex: 0 0 auto; }
+    .territorio-faixa .btn-primary { width: 100%; }
+
+    /* Fatos: o valor em reais na linha de cima, os outros dois lado a lado. */
+    .territorio-fatos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem .75rem; margin-top: 1.25rem; padding-top: 1rem; }
+    .territorio-fato:first-child { grid-column: 1 / -1; }
+    .territorio-fato dd { font-size: 1.875rem; }
+    .territorio-fato dt { max-width: none; }
+
+    .mesa { margin-top: -3.5rem; }
+    .mesa-cabecalho { padding: 1rem 1rem .875rem; }
+    .mesa-titulo { font-size: 1.5rem; line-height: 1.875rem; }
+    .mesa-acoes { width: 100%; }
+    .mesa-acoes .btn { flex: 1 1 auto; }
+    .mesa-corpo { padding: 1rem; gap: 1.25rem; }
+    .lead { font-size: 1.1875rem; line-height: 1.45; }
+
+    /* Cartões: o destaque ocupa a linha, os outros dois dividem a de baixo. */
+    .kit-numeros { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+    .kit-numero { padding: .875rem 1rem; }
+    .kit-numero-destaque, .kit-numeros-1 .kit-numero { grid-column: 1 / -1; }
+    .kit-numero-valor { font-size: 1.625rem; }
+    .kit-numero-destaque .kit-numero-valor { font-size: 2rem; }
+    .kit-numero-valor-texto, .kit-numero-destaque .kit-numero-valor-texto { font-size: 1.25rem; line-height: 1.75rem; }
+    .kit-numeros-1 { max-width: none; grid-template-columns: minmax(0, 1fr) !important; }
+
+    .aviso { padding: .75rem .875rem; font-size: .9375rem; line-height: 1.375rem; }
+    .bloco + .bloco { padding-top: 1.25rem; }
+    .bloco-titulo { font-size: 1.125rem; line-height: 1.5rem; }
+
+    .barra-linha { padding: .5rem .375rem; gap: .25rem; }
+    .barra-valor { flex: 0 0 auto; min-width: 5.25rem; }
+
+    /* Ranking: sem população e com valores curtos, para caber sem rolagem lateral. */
+    .col-larga { display: none; }
+    .col-celular { display: inline; }
+    .tabela th, .tabela td { padding: .625rem .4375rem; font-size: .875rem; }
+    .tabela td.num { white-space: nowrap; }
+    .tabela th:first-child, .tabela td:first-child { padding-left: .75rem; }
+    .tabela th:last-child, .tabela td:last-child { padding-right: .75rem; }
+
+    .chapados { margin-top: 1rem; gap: .75rem; }
+    .chapado { padding: 1rem; }
+    .nota-titulo { font-size: 1.0625rem; }
+    .rodape { flex-direction: column; }
+    .exemplos .chip { flex: 1 1 auto; justify-content: center; }
+}
+
 .carregando { padding: 2.5rem 1.25rem; text-align: center; color: var(--cor-texto-suave); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1215,13 +1279,18 @@ main:focus { outline: none; }
             return el('tr', { 'aria-current': x === m ? 'true' : null }, [
                 el('td', { classe: 'num', texto: (i + 1) + 'º' }),
                 el('td', {}, [x === m ? x.nome : el('button', { type: 'button', classe: 'link-tabela', onclick: function () { escolher(x); } }, [x.nome])]),
-                el('td', { classe: 'num', texto: formatarNumero(x.populacao) }),
-                el('td', { classe: 'num', texto: formatarReais(x.repasse) }),
+                el('td', { classe: 'num col-larga', texto: formatarNumero(x.populacao) }),
+                // Valor completo na tela larga, curto (R$ 12,59 mi) no celular.
+                el('td', { classe: 'num' }, [
+                    el('span', { classe: 'col-larga', texto: formatarReais(x.repasse) }),
+                    el('span', { classe: 'col-celular', texto: formatarReaisCurto(x.repasse) })
+                ]),
                 el('td', { classe: 'num', texto: formatarReais(x.repasse / x.populacao) })
             ]);
         }
         ranking.slice(0, LINHAS_RANKING).forEach(function (x, i) { corpoTabela.appendChild(linha(x, i)); });
         if (posicao >= LINHAS_RANKING) {
+            // colspan maior que o número de colunas visíveis é aceito pelo navegador (celular esconde População).
             if (posicao > LINHAS_RANKING) corpoTabela.appendChild(el('tr', { classe: 'tabela-reticencias' }, [el('td', { colspan: '5', texto: '…' })]));
             corpoTabela.appendChild(linha(m, posicao));
         }
@@ -1229,11 +1298,11 @@ main:focus { outline: none; }
             el('table', { classe: 'tabela' }, [
                 el('caption', { classe: 'sr-only', texto: 'Municípios ' + deUf(m.uf) + ' com os maiores repasses simulados' }),
                 el('thead', {}, [el('tr', {}, [
-                    el('th', { classe: 'num', scope: 'col', texto: 'Posição' }),
+                    el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Posição' }), el('span', { classe: 'col-celular', texto: 'Pos.' })]),
                     el('th', { scope: 'col', texto: 'Município' }),
-                    el('th', { classe: 'num', scope: 'col', texto: 'População' }),
-                    el('th', { classe: 'num', scope: 'col', texto: 'Repasse simulado' }),
-                    el('th', { classe: 'num', scope: 'col', texto: 'Por habitante' })
+                    el('th', { classe: 'num col-larga', scope: 'col', texto: 'População' }),
+                    el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Repasse simulado' }), el('span', { classe: 'col-celular', texto: 'Repasse' })]),
+                    el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Por habitante' }), el('span', { classe: 'col-celular', texto: 'Por hab.' })])
                 ])]),
                 corpoTabela
             ])
