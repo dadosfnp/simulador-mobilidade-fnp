@@ -1,0 +1,7 @@
+# Planilhas de origem ficam fora do repositório; o JSON gerado é o que vale.
+*.xlsx
+*.xls
+__pycache__/
+.venv/
+.vscode/
+.claude/

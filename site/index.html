@@ -1,0 +1,1330 @@
+<title>Mobilidade no seu município</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#103758">
+<meta name="description" content="Simulador da FNP: veja quanto o seu município recebe com o adicional de mobilidade, comparado ao adicional de FPM.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/*
+ * Identidade "Território" da FNP (guia-de-estilo-fnp.md).
+ * Layout: barra marinha -> faixa em degradê com a busca e o mapa por UF ->
+ * mesa branca que sobe 4rem sobre a faixa (única sombra) -> blocos chapados no céu.
+ * Valores copiados do guia; nomes de token em português, como no Sistema FNP.
+ */
+:root {
+    --cor-fundo: #f5f7fa;
+    --cor-superficie: #ffffff;
+    --cor-superficie-2: #f5f7fa;
+    --cor-superficie-3: #edf1f5;
+    --cor-borda: #dde3ea;
+    --cor-borda-suave: #e9eef3;
+    --cor-texto: #13263a;
+    --cor-texto-2: #33435a;
+    --cor-texto-suave: #5d6b7c;
+    --cor-titulo: #103758;
+    --cor-link: #1e4784;
+    --cor-foco: #4d72b0;
+    --foco-anel: #eeaf19;
+    --foco-contorno: #103758;
+    --foco-sombra: 0 0 0 2px var(--foco-contorno);
+    --campo-borda: #76879D;
+    --cor-sobe: #167039;
+    --cor-desce: #b42318;
+    --cor-perigo-solido: #d92d20;
+    --linha-tabela: #E2E8F0;
+    --linha-grupo: #F3F6FA;
+    --hover-linha: #F7F9FC;
+
+    /* Cores das duas séries: mobilidade é a marca (azul), FPM é o neutro de comparação. */
+    --cor-mob: #1e4784;
+    --cor-fpm: #76879D;
+    --trilho-barra: #edf1f5;
+
+    --selo-cinza-fundo: #edf1f5; --selo-cinza-texto: #33435a;
+    --selo-azul-fundo: #eef3fa; --selo-azul-texto: #1e4784;
+    --selo-verde-fundo: #ecf7f0; --selo-verde-texto: #167039;
+    --selo-ambar-fundo: #fef8e8; --selo-ambar-texto: #7a540f;
+    --selo-vermelho-fundo: #fef3f2; --selo-vermelho-texto: #b42318;
+
+    --aviso-info-fundo: #eef3fa; --aviso-info-borda: #dce6f4; --aviso-info-faixa: #1e4784; --aviso-info-texto: #173f6e;
+    --aviso-atencao-fundo: #fef8e8; --aviso-atencao-borda: #f9df8f; --aviso-atencao-faixa: #eeaf19; --aviso-atencao-texto: #7a540f;
+    --aviso-erro-fundo: #fef3f2; --aviso-erro-borda: #fecdca; --aviso-erro-faixa: #d92d20; --aviso-erro-texto: #912018;
+
+    --fonte-texto: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --fonte-titulo: 'Outfit', 'Work Sans', system-ui, sans-serif;
+    --raio-sm: .375rem;
+    --raio-md: .625rem;
+    --sombra-popover: 0 8px 24px -8px rgba(16, 55, 88, .18), 0 0 0 1px rgba(16, 55, 88, .06);
+    --duracao: .15s;
+
+    --ceu: #E8EEF7;
+    --ceu-2: #DCE5F1;
+    --territorio-linha: #D8E0EA;
+    --territorio-marinho: #103758;
+    --territorio-acento: #eeaf19;
+    --territorio-acento-texto: #103758;
+    --territorio-acento-claro: #f5cb55;
+    --territorio-degrade-fim: #1e4784;
+    --territorio-degrade: linear-gradient(120deg, #103758 0%, #103758 38%, var(--territorio-degrade-fim) 100%);
+    --sombra-mesa: 0 22px 44px -28px rgba(16, 55, 88, .55), 0 2px 6px -3px rgba(16, 55, 88, .18);
+    --raio-mesa: .625rem;
+    --raio-controle: .375rem;
+    --tinta-2: #47586C;
+    --gutter-esq: max(16px, env(safe-area-inset-left, 0px));
+    --gutter-dir: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --cor-fundo: #111827; --cor-superficie: #1f2937; --cor-superficie-2: #172030; --cor-superficie-3: #2b3544;
+        --cor-borda: #374151; --cor-borda-suave: #2b3544;
+        --cor-texto: #f3f4f6; --cor-texto-2: #d1d5db; --cor-texto-suave: #9ca3af; --cor-titulo: #f3f4f6;
+        --cor-link: #94b8ff; --cor-foco: #94b8ff; --campo-borda: #5d6b7c;
+        --cor-sobe: #86d9a6; --cor-desce: #fca5a5;
+        --linha-tabela: #2b3544; --linha-grupo: #172030; --hover-linha: #243041;
+        --cor-mob: #94b8ff; --cor-fpm: #8b98a8; --trilho-barra: #2b3544;
+        --selo-cinza-fundo: #374151; --selo-cinza-texto: #d1d5db;
+        --selo-azul-fundo: rgba(53, 103, 168, .25); --selo-azul-texto: #94b8ff;
+        --selo-verde-fundo: rgba(28, 136, 70, .24); --selo-verde-texto: #86d9a6;
+        --selo-ambar-fundo: rgba(245, 158, 11, .18); --selo-ambar-texto: #fcd34d;
+        --selo-vermelho-fundo: rgba(239, 68, 68, .18); --selo-vermelho-texto: #fca5a5;
+        --aviso-info-fundo: rgba(53, 103, 168, .16); --aviso-info-borda: rgba(53, 103, 168, .4); --aviso-info-faixa: #94b8ff; --aviso-info-texto: #c3d3e6;
+        --aviso-atencao-fundo: rgba(245, 158, 11, .12); --aviso-atencao-borda: rgba(245, 158, 11, .35); --aviso-atencao-texto: #fde68a;
+        --aviso-erro-fundo: rgba(239, 68, 68, .12); --aviso-erro-borda: rgba(239, 68, 68, .35); --aviso-erro-texto: #fecaca;
+        --ceu: #111827; --ceu-2: #172030; --territorio-linha: #2b3544; --tinta-2: #9ca3af;
+        --sombra-mesa: 0 22px 44px -28px rgba(0, 0, 0, .8);
+        --sombra-popover: 0 8px 24px -8px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .08);
+        color-scheme: dark;
+    }
+}
+:root[data-theme="dark"] {
+    --cor-fundo: #111827; --cor-superficie: #1f2937; --cor-superficie-2: #172030; --cor-superficie-3: #2b3544;
+    --cor-borda: #374151; --cor-borda-suave: #2b3544;
+    --cor-texto: #f3f4f6; --cor-texto-2: #d1d5db; --cor-texto-suave: #9ca3af; --cor-titulo: #f3f4f6;
+    --cor-link: #94b8ff; --cor-foco: #94b8ff; --campo-borda: #5d6b7c;
+    --cor-sobe: #86d9a6; --cor-desce: #fca5a5;
+    --linha-tabela: #2b3544; --linha-grupo: #172030; --hover-linha: #243041;
+    --cor-mob: #94b8ff; --cor-fpm: #8b98a8; --trilho-barra: #2b3544;
+    --selo-cinza-fundo: #374151; --selo-cinza-texto: #d1d5db;
+    --selo-azul-fundo: rgba(53, 103, 168, .25); --selo-azul-texto: #94b8ff;
+    --selo-verde-fundo: rgba(28, 136, 70, .24); --selo-verde-texto: #86d9a6;
+    --selo-ambar-fundo: rgba(245, 158, 11, .18); --selo-ambar-texto: #fcd34d;
+    --selo-vermelho-fundo: rgba(239, 68, 68, .18); --selo-vermelho-texto: #fca5a5;
+    --aviso-info-fundo: rgba(53, 103, 168, .16); --aviso-info-borda: rgba(53, 103, 168, .4); --aviso-info-faixa: #94b8ff; --aviso-info-texto: #c3d3e6;
+    --aviso-atencao-fundo: rgba(245, 158, 11, .12); --aviso-atencao-borda: rgba(245, 158, 11, .35); --aviso-atencao-texto: #fde68a;
+    --aviso-erro-fundo: rgba(239, 68, 68, .12); --aviso-erro-borda: rgba(239, 68, 68, .35); --aviso-erro-texto: #fecaca;
+    --ceu: #111827; --ceu-2: #172030; --territorio-linha: #2b3544; --tinta-2: #9ca3af;
+    --sombra-mesa: 0 22px 44px -28px rgba(0, 0, 0, .8);
+    --sombra-popover: 0 8px 24px -8px rgba(0, 0, 0, .6), 0 0 0 1px rgba(255, 255, 255, .08);
+    color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+/* Sem isto, classes com display próprio (ex.: .busca-erro) ignoram o atributo hidden. */
+[hidden] { display: none !important; }
+body {
+    margin: 0; background: var(--ceu); color: var(--cor-texto);
+    font-family: var(--fonte-texto); font-size: 1rem; line-height: 1.5rem;
+    -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { font-family: var(--fonte-titulo); margin: 0; letter-spacing: -.005em; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--cor-link); }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible { outline: 2px solid var(--cor-foco); outline-offset: 2px; border-radius: 2px; }
+.num, .tabular { font-variant-numeric: tabular-nums; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+.pular-conteudo {
+    position: absolute; left: var(--gutter-esq); top: -4rem; z-index: 100;
+    background: var(--territorio-acento); color: var(--territorio-acento-texto);
+    padding: .5rem 1rem; border-radius: var(--raio-sm); font-weight: 600; text-decoration: none;
+}
+.pular-conteudo:focus { top: .5rem; outline: 3px solid var(--foco-contorno); }
+
+/* Barra do topo: marinha, 56px, contínua com a faixa. */
+.barra-topo { background: var(--territorio-marinho); color: #fff; }
+.barra-topo-dentro {
+    max-width: 80rem; margin: 0 auto; min-height: 3.5rem;
+    display: flex; align-items: center; gap: .75rem;
+    padding-left: var(--gutter-esq); padding-right: var(--gutter-dir);
+}
+.marca-sigla { font-family: var(--fonte-titulo); font-weight: 700; font-size: 1.375rem; letter-spacing: .01em; }
+.marca-nome { font-size: .9375rem; color: rgba(255, 255, 255, .86); border-left: 1px solid rgba(255, 255, 255, .28); padding-left: .75rem; }
+@media (max-width: 479px) { .marca-nome { font-size: .875rem; line-height: 1.15rem; } }
+
+.casca {
+    max-width: 80rem; margin: 0 auto;
+    padding-left: var(--gutter-esq); padding-right: var(--gutter-dir); padding-block: 1.25rem 2rem;
+}
+@media (min-width: 1024px) { .casca { padding-block: 1.5rem 2.5rem; } }
+main:focus { outline: none; }
+
+/* ---------- Faixa do território ---------- */
+.territorio-faixa {
+    position: relative; isolation: isolate;
+    color: #fff; background: var(--territorio-degrade);
+    border-radius: var(--raio-mesa); padding: 1.5rem 1.25rem 2rem;
+}
+@media (min-width: 768px) { .territorio-faixa { padding: 2rem 2rem 2rem; } }
+.territorio-faixa.territorio-com-mesa { padding-bottom: 5.5rem; }
+.territorio-faixa-grade { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: center; }
+@media (min-width: 1024px) { .territorio-faixa-grade { grid-template-columns: minmax(0, 1fr) minmax(0, 19rem); gap: 3rem; } }
+.territorio-faixa-texto { min-width: 0; }
+.territorio-sobretitulo { font-size: .9375rem; font-weight: 600; color: var(--territorio-acento-claro); }
+.territorio-titulo {
+    font-weight: 300; color: #fff; font-size: 2.125rem; line-height: 1.1; letter-spacing: -.01em; margin-top: .25rem; max-width: 22ch;
+}
+@media (min-width: 1024px) { .territorio-titulo { font-size: 2.875rem; line-height: 1.05; } }
+.territorio-subtitulo { font-size: 1.0625rem; line-height: 1.55; color: rgba(255, 255, 255, .88); margin-top: .75rem; max-width: 56ch; }
+
+.busca { margin-top: 1.5rem; max-width: 40rem; }
+.busca-rotulo { display: block; font-size: .9375rem; font-weight: 600; color: #fff; margin-bottom: .5rem; }
+.busca-linha { display: flex; gap: .5rem; flex-wrap: wrap; }
+.busca-campo-envoltorio { position: relative; flex: 1 1 16rem; min-width: 0; }
+.campo {
+    width: 100%; min-height: 2.75rem; padding: .5rem .75rem .5rem 2.5rem;
+    font-family: var(--fonte-texto); font-size: 1rem; line-height: 1.25rem;
+    color: #13263a; background: #fff; border: 1.5px solid var(--campo-borda);
+    border-radius: var(--raio-sm); transition: border-color var(--duracao), box-shadow var(--duracao);
+}
+.campo::placeholder { color: #5d6b7c; opacity: 1; }
+/* Sobre o marinho o anel amarelo vai sozinho (guia, 4.7). */
+.campo:focus { outline: 3px solid var(--territorio-acento); outline-offset: 2px; border-color: #1e4784; }
+.campo[aria-invalid="true"] { border-color: var(--cor-perigo-solido); }
+.busca-icone { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); width: 1.125rem; height: 1.125rem; color: #5d6b7c; pointer-events: none; }
+.busca-ajuda { font-size: .875rem; line-height: 1.25rem; color: rgba(255, 255, 255, .8); margin-top: .5rem; }
+.busca-erro { font-size: .875rem; line-height: 1.25rem; font-weight: 600; margin-top: .5rem; color: #fff;
+    background: rgba(217, 45, 32, .9); border-radius: var(--raio-sm); padding: .375rem .625rem; display: inline-block; }
+
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .4375rem;
+    min-height: 2.375rem; font-family: var(--fonte-titulo); font-size: .90625rem; font-weight: 500; line-height: 1.25rem;
+    padding: .375rem .875rem; border-radius: var(--raio-sm); border: 1px solid transparent; cursor: pointer;
+    white-space: nowrap; text-decoration: none;
+    transition: background-color var(--duracao), color var(--duracao), border-color var(--duracao), box-shadow var(--duracao);
+}
+.btn:focus-visible { outline: 3px solid var(--foco-anel); outline-offset: 2px; box-shadow: var(--foco-sombra); }
+.btn-sm { font-size: .875rem; padding: .25rem .75rem; min-height: 2.125rem; }
+.btn-secondary { background: var(--cor-superficie); color: var(--cor-titulo); border-color: var(--cor-titulo); }
+.btn-secondary:hover { background: var(--ceu); }
+.btn-subtle { background: var(--ceu); color: var(--cor-titulo); }
+.btn-subtle:hover { background: var(--ceu-2); }
+.territorio-faixa .btn-primary { background: var(--territorio-acento); color: var(--territorio-acento-texto); min-height: 2.75rem; padding-inline: 1.125rem; }
+.territorio-faixa .btn-primary:hover { filter: brightness(.94); }
+.territorio-faixa .btn:focus-visible { outline-color: #fff; box-shadow: none; }
+@media (pointer: coarse) { .btn { min-height: 2.75rem; } .btn-sm { min-height: 2.5rem; } }
+
+.territorio-fatos { display: flex; flex-wrap: wrap; gap: 1rem 2.25rem; margin: 1.75rem 0 0; padding-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, .18); }
+.territorio-fato { display: flex; flex-direction: column-reverse; margin: 0; }
+.territorio-fato dt { font-size: .875rem; line-height: 1.25rem; color: rgba(255, 255, 255, .8); max-width: 16ch; }
+.territorio-fato dd { margin: 0; font-family: var(--fonte-titulo); font-weight: 300; font-size: 2.25rem; line-height: 1.05; font-variant-numeric: tabular-nums; color: #fff; }
+.rs { font-size: .6em; font-weight: 500; margin-right: .12em; }
+
+/* Mapa do Brasil em ladrilhos (guia, 5.12): grade 7x8, passo 44. */
+.territorio-faixa-mapa { display: none; }
+@media (min-width: 768px) { .territorio-faixa-mapa { display: block; max-width: 19rem; } }
+@media (min-width: 768px) and (max-width: 1023px) { .territorio-faixa-mapa { max-width: 15rem; } }
+.mapa-uf { width: 100%; height: auto; display: block; }
+.mapa-uf text { font-variant-numeric: tabular-nums; }
+.mapa-legenda { font-size: .875rem; line-height: 1.25rem; color: rgba(255, 255, 255, .8); margin-top: .5rem; }
+
+/* Lista de sugestões: fica no <body> e é posicionada por JS, porque a faixa
+   corta o que passa da borda e a mesa sobe por cima dela. */
+.sugestoes {
+    position: absolute; z-index: 50; margin: 0; padding: .25rem; list-style: none;
+    background: var(--cor-superficie); color: var(--cor-texto);
+    border-radius: var(--raio-md); box-shadow: var(--sombra-popover);
+    max-height: 22rem; overflow-y: auto;
+}
+.sugestoes[hidden] { display: none; }
+.sugestao {
+    display: flex; align-items: baseline; justify-content: space-between; gap: .75rem;
+    padding: .625rem .75rem; border-radius: var(--raio-sm); cursor: pointer; min-height: 2.75rem;
+}
+.sugestao[aria-selected="true"] { background: var(--ceu); box-shadow: inset 3px 0 0 var(--territorio-acento); }
+.sugestao-nome { font-weight: 500; }
+.sugestao-nome mark { background: none; color: inherit; font-weight: 700; }
+.sugestao-info { font-size: .875rem; color: var(--cor-texto-suave); white-space: nowrap; }
+.sugestoes-vazio { padding: .75rem; font-size: .9375rem; color: var(--cor-texto-suave); }
+
+/* ---------- Mesa ---------- */
+.mesa {
+    position: relative; z-index: 1; margin-top: -4rem;
+    background: var(--cor-superficie); border-radius: var(--raio-mesa); box-shadow: var(--sombra-mesa);
+}
+.mesa-cabecalho {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .75rem 1rem;
+    padding: 1.25rem 1.25rem 1rem; border-bottom: 1px solid var(--territorio-linha);
+}
+@media (min-width: 768px) { .mesa-cabecalho { padding: 1.5rem 1.75rem 1.125rem; } }
+.mesa-identidade { min-width: 0; }
+.mesa-sobretitulo { font-size: .875rem; line-height: 1.25rem; color: var(--cor-texto-suave); }
+.mesa-titulo { font-size: 1.75rem; line-height: 2.125rem; font-weight: 600; color: var(--cor-titulo); margin-top: .125rem; }
+@media (min-width: 768px) { .mesa-titulo { font-size: 2rem; line-height: 2.375rem; } }
+.mesa-titulo:focus { outline: none; }
+.selos { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .625rem; }
+.mesa-acoes { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.mesa-corpo { padding: 1.25rem; display: grid; gap: 1.5rem; }
+@media (min-width: 768px) { .mesa-corpo { padding: 1.5rem 1.75rem 1.75rem; gap: 1.75rem; } }
+
+.selo {
+    display: inline-flex; align-items: center; gap: .25rem; font-size: .875rem; line-height: 1.25rem;
+    min-height: 1.5rem; font-weight: 600; padding: .1875rem .5rem; border-radius: .25rem;
+    background: var(--selo-cinza-fundo); color: var(--selo-cinza-texto);
+}
+.selo-azul { background: var(--selo-azul-fundo); color: var(--selo-azul-texto); }
+.selo-verde { background: var(--selo-verde-fundo); color: var(--selo-verde-texto); }
+.selo-ambar { background: var(--selo-ambar-fundo); color: var(--selo-ambar-texto); }
+.selo-vermelho { background: var(--selo-vermelho-fundo); color: var(--selo-vermelho-texto); }
+
+.lead {
+    font-family: var(--fonte-titulo); font-weight: 300; font-size: 1.375rem; line-height: 1.4;
+    color: var(--cor-texto); max-width: 60ch; text-wrap: pretty;
+}
+@media (min-width: 768px) { .lead { font-size: 1.5rem; } }
+.lead strong { font-weight: 600; color: var(--cor-titulo); }
+.lead .sobe { color: var(--cor-sobe); font-weight: 600; }
+
+/* Cartões de número (guia, 5.10). Um destaque marinho por painel. */
+.kit-numeros { display: grid; gap: .75rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .kit-numeros { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.kit-numero { padding: 1.125rem 1.25rem; border-radius: var(--raio-md); background: var(--cor-superficie); border: 1px solid var(--territorio-linha); min-width: 0; }
+.kit-numero-rotulo { font-size: .875rem; line-height: 1.25rem; font-weight: 500; color: var(--cor-texto-suave); }
+.kit-numero-valor {
+    margin-top: .25rem; font-family: var(--fonte-titulo); font-size: 2.125rem; line-height: 1.1; font-weight: 300;
+    color: var(--cor-titulo); font-variant-numeric: tabular-nums; letter-spacing: -.01em; overflow-wrap: anywhere;
+}
+.kit-numero-detalhe { margin-top: .375rem; font-size: .875rem; line-height: 1.25rem; color: var(--cor-texto-suave); }
+.kit-numero-detalhe .num { white-space: nowrap; }
+.kit-numero-sobe .kit-numero-valor { color: var(--cor-sobe); }
+.kit-numero-desce .kit-numero-valor { color: var(--cor-desce); }
+.kit-numero-destaque { background: #103758; border-color: #103758; }
+.kit-numero-destaque .kit-numero-rotulo, .kit-numero-destaque .kit-numero-detalhe { color: #c3d3e6; }
+.kit-numero-destaque .kit-numero-valor { color: #fff; }
+
+.aviso {
+    padding: .875rem 1.125rem; border-radius: var(--raio-sm);
+    border: 1px solid var(--aviso-borda); border-left: 4px solid var(--aviso-faixa);
+    background: var(--aviso-fundo); color: var(--aviso-texto); font-size: .9375rem; line-height: 1.4375rem;
+}
+.aviso-info { --aviso-fundo: var(--aviso-info-fundo); --aviso-borda: var(--aviso-info-borda); --aviso-faixa: var(--aviso-info-faixa); --aviso-texto: var(--aviso-info-texto); }
+.aviso-atencao { --aviso-fundo: var(--aviso-atencao-fundo); --aviso-borda: var(--aviso-atencao-borda); --aviso-faixa: var(--aviso-atencao-faixa); --aviso-texto: var(--aviso-atencao-texto); }
+.aviso-erro { --aviso-fundo: var(--aviso-erro-fundo); --aviso-borda: var(--aviso-erro-borda); --aviso-faixa: var(--aviso-erro-faixa); --aviso-texto: var(--aviso-erro-texto); }
+.aviso strong { font-weight: 600; }
+
+/* Bloco interno da mesa com título de seção. */
+.bloco-titulo { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; color: var(--cor-titulo); }
+.bloco-subtitulo { font-size: .9375rem; line-height: 1.375rem; color: var(--cor-texto-suave); margin-top: .25rem; max-width: 70ch; }
+.bloco + .bloco { padding-top: 1.5rem; border-top: 1px solid var(--territorio-linha); }
+
+/* Barras pareadas: mobilidade em cima, FPM embaixo, mesma escala no gráfico todo. */
+.legenda { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: .75rem; font-size: .875rem; color: var(--cor-texto-2); }
+.legenda-item { display: inline-flex; align-items: center; gap: .5rem; }
+.legenda-cor { width: .875rem; height: .875rem; border-radius: 3px; flex-shrink: 0; }
+.legenda-cor-mob { background: var(--cor-mob); }
+.legenda-cor-fpm { background: var(--cor-fpm); }
+.barras { display: grid; gap: .25rem; margin-top: 1rem; }
+.barra-linha {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: .375rem .75rem; align-items: center;
+    padding: .625rem .5rem; border-radius: var(--raio-sm);
+}
+@media (min-width: 768px) { .barra-linha { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); } }
+.barra-linha[aria-current="true"] { background: var(--linha-grupo); box-shadow: inset 3px 0 0 var(--territorio-acento); }
+.barra-rotulo { font-size: .9375rem; line-height: 1.25rem; color: var(--cor-texto); min-width: 0; }
+.barra-rotulo small { display: block; font-size: .875rem; color: var(--cor-texto-suave); }
+.barra-linha[aria-current="true"] .barra-rotulo { font-weight: 600; }
+.barra-pares { display: grid; gap: .25rem; min-width: 0; }
+.barra { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.barra-trilho { flex: 1 1 auto; height: .875rem; background: var(--trilho-barra); border-radius: 3px; overflow: hidden; min-width: 0; }
+.barra-preenchida { height: 100%; border-radius: 3px; }
+.barra-mob .barra-preenchida { background: var(--cor-mob); }
+.barra-fpm .barra-preenchida { background: var(--cor-fpm); }
+.barra-valor { flex: 0 0 6.25rem; font-size: .875rem; line-height: 1.25rem; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--cor-texto-2); }
+.barra-mob .barra-valor { color: var(--cor-texto); font-weight: 600; }
+
+/* Tabela (guia, 5.8). */
+.tabela-rolagem { overflow-x: auto; margin-top: 1rem; border: 1px solid var(--territorio-linha); border-radius: var(--raio-md); }
+.tabela { width: 100%; font-size: .9375rem; line-height: 1.375rem; border-collapse: separate; border-spacing: 0; }
+.tabela th { text-align: left; font-size: .875rem; font-weight: 600; color: var(--cor-texto-2); background: var(--linha-grupo); padding: .75rem 1rem; border-bottom: 1px solid var(--territorio-linha); white-space: nowrap; }
+.tabela td { padding: .75rem 1rem; border-bottom: 1px solid var(--linha-tabela); vertical-align: middle; }
+.tabela tr:last-child td { border-bottom: 0; }
+.tabela tbody tr:hover td { background: var(--hover-linha); }
+.tabela tr[aria-current="true"] td { background: var(--linha-grupo); font-weight: 600; }
+.tabela tr[aria-current="true"] td:first-child { box-shadow: inset 3px 0 0 var(--territorio-acento); }
+.tabela .num, .tabela th.num { text-align: right; white-space: nowrap; }
+.tabela-reticencias td { color: var(--cor-texto-suave); text-align: center; padding: .375rem; }
+.link-tabela { background: none; border: 0; padding: 0; font: inherit; color: var(--cor-link); cursor: pointer; text-align: left; text-decoration: underline; text-decoration-color: transparent; }
+.link-tabela:hover { text-decoration-color: currentColor; }
+.link-tabela:focus-visible { outline: 2px solid var(--cor-foco); outline-offset: 2px; border-radius: 2px; }
+
+.exemplos { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+.chip {
+    display: inline-flex; align-items: center; height: 2.25rem; padding: 0 .875rem;
+    font-family: var(--fonte-texto); font-size: .875rem; font-weight: 500; line-height: 1.25rem;
+    border-radius: var(--raio-sm); border: 1.5px solid var(--campo-borda); background: var(--cor-superficie); color: var(--cor-texto);
+    cursor: pointer; white-space: nowrap; transition: border-color var(--duracao);
+}
+.chip:hover { border-color: var(--cor-link); }
+.chip:focus-visible { outline: 3px solid var(--foco-anel); outline-offset: 2px; box-shadow: var(--foco-sombra); }
+@media (pointer: coarse) { .chip { height: 2.75rem; } }
+
+/* ---------- Blocos chapados sobre o céu ---------- */
+.chapados { display: grid; gap: 1rem; margin-top: 1.5rem; }
+@media (min-width: 1024px) { .chapados { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 2rem; } }
+.chapado { background: var(--cor-superficie); border-radius: var(--raio-md); padding: 1.25rem; min-width: 0; }
+@media (min-width: 768px) { .chapado { padding: 1.5rem; } }
+.chapado .barra-linha { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .chapado .barra-linha { grid-template-columns: minmax(0, 10.5rem) minmax(0, 1fr); } }
+.chapado-largo { grid-column: 1 / -1; }
+.texto-corrido { font-size: .9375rem; line-height: 1.5rem; color: var(--cor-texto-2); max-width: 75ch; }
+.texto-corrido + .texto-corrido { margin-top: .75rem; }
+.texto-corrido strong { color: var(--cor-texto); font-weight: 600; }
+.metodo { display: grid; gap: 1rem 2rem; margin-top: 1rem; }
+@media (min-width: 1024px) { .metodo { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.metodo h3 { font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--cor-titulo); margin-bottom: .25rem; }
+
+.rodape { margin-top: 2rem; padding-top: .75rem; border-top: 1px solid var(--territorio-linha);
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: .375rem 1.25rem; font-size: .875rem; line-height: 1.25rem; color: var(--tinta-2); }
+
+.carregando { padding: 2.5rem 1.25rem; text-align: center; color: var(--cor-texto-suave); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+@media print {
+    .barra-topo, .busca, .territorio-faixa-mapa, .mesa-acoes, .sugestoes, .exemplos { display: none !important; }
+    .territorio-faixa { background: none !important; color: #000; padding: 0 0 .5rem; }
+    .territorio-faixa * { color: #000 !important; }
+    .mesa { margin-top: 0; box-shadow: none; border: 1px solid #ccc; }
+}
+</style>
+<!--FIM-DO-HEAD-->
+
+<a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+<header class="barra-topo">
+    <div class="barra-topo-dentro">
+        <span class="marca-sigla" aria-hidden="true">FNP</span>
+        <span class="marca-nome">Frente Nacional de Prefeitas e Prefeitos</span>
+    </div>
+</header>
+
+<main id="conteudo" tabindex="-1">
+    <div class="casca">
+        <section class="territorio-faixa territorio-com-mesa" aria-labelledby="titulo-pagina">
+            <div class="territorio-faixa-grade">
+                <div class="territorio-faixa-texto">
+                    <p class="territorio-sobretitulo">Simulador do adicional de mobilidade</p>
+                    <h1 class="territorio-titulo" id="titulo-pagina">Quanto o seu município recebe com o adicional de mobilidade</h1>
+                    <p class="territorio-subtitulo">Digite o nome do município para comparar o que ele recebe pelo adicional de mobilidade com o que receberia pelo adicional de FPM.</p>
+
+                    <form class="busca" id="form-busca" role="search" autocomplete="off" novalidate>
+                        <label class="busca-rotulo" for="campo-busca">Nome do município</label>
+                        <div class="busca-linha">
+                            <div class="busca-campo-envoltorio">
+                                <svg class="busca-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+                                <input id="campo-busca" class="campo" type="text" placeholder="Ex.: Campinas ou Volta Redonda RJ"
+                                       role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="lista-sugestoes"
+                                       aria-describedby="busca-ajuda" spellcheck="false" disabled>
+                            </div>
+                            <button type="submit" class="btn btn-primary" id="botao-buscar" disabled>Ver resultado</button>
+                        </div>
+                        <p class="busca-ajuda" id="busca-ajuda">Acentos e maiúsculas não importam. Para separar nomes repetidos, digite também a UF.</p>
+                        <p class="busca-erro" id="busca-erro" role="alert" hidden></p>
+                    </form>
+
+                    <dl class="territorio-fatos" id="fatos" aria-label="Resumo nacional">
+                        <div class="territorio-fato"><dt>distribuídos pelo adicional de mobilidade</dt><dd id="fato-total">…</dd></div>
+                        <div class="territorio-fato"><dt>municípios contemplados</dt><dd id="fato-municipios">…</dd></div>
+                        <div class="territorio-fato"><dt>da população vive nesses municípios</dt><dd id="fato-populacao">…</dd></div>
+                    </dl>
+                </div>
+                <div class="territorio-faixa-mapa">
+                    <svg class="mapa-uf" id="mapa-uf" viewBox="0 0 304 348" role="group" aria-label="Parcela da população de cada estado que vive em municípios contemplados"></svg>
+                    <p class="mapa-legenda" id="mapa-legenda">Parcela da população de cada UF que vive em municípios contemplados.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mesa" id="mesa" aria-live="polite" aria-busy="true">
+            <p class="carregando">Carregando os dados dos municípios…</p>
+        </section>
+
+        <div class="chapados">
+            <section class="chapado" aria-labelledby="titulo-porte">
+                <h2 class="bloco-titulo" id="titulo-porte">Por habitante, conforme o porte</h2>
+                <p class="bloco-subtitulo" id="texto-porte"></p>
+                <div class="legenda" aria-hidden="true">
+                    <span class="legenda-item"><span class="legenda-cor legenda-cor-mob"></span>Adicional de mobilidade</span>
+                    <span class="legenda-item"><span class="legenda-cor legenda-cor-fpm"></span>Adicional de FPM</span>
+                </div>
+                <div class="barras" id="barras-porte"></div>
+            </section>
+            <section class="chapado" aria-labelledby="titulo-quintil">
+                <h2 class="bloco-titulo" id="titulo-quintil">Por habitante, conforme a receita do município</h2>
+                <p class="bloco-subtitulo" id="texto-quintil"></p>
+                <div class="legenda" aria-hidden="true">
+                    <span class="legenda-item"><span class="legenda-cor legenda-cor-mob"></span>Adicional de mobilidade</span>
+                    <span class="legenda-item"><span class="legenda-cor legenda-cor-fpm"></span>Adicional de FPM</span>
+                </div>
+                <div class="barras" id="barras-quintil"></div>
+            </section>
+            <section class="chapado chapado-largo" aria-labelledby="titulo-metodo">
+                <h2 class="bloco-titulo" id="titulo-metodo">Como os números foram calculados</h2>
+                <div class="metodo">
+                    <div>
+                        <h3>De onde vêm os valores</h3>
+                        <p class="texto-corrido">Os valores do adicional de FPM e do adicional de mobilidade vêm da simulação da FNP para <strong id="metodo-total-municipios">5.537</strong> municípios.</p>
+                        <p class="texto-corrido">Os <span id="metodo-total-fora">34</span> municípios em que o transporte coletivo não é gerido pela prefeitura, mas pelo estado ou por consórcio metropolitano (como nas regiões de Recife, Aracaju, Vitória e Goiânia), ficam fora da simulação e aparecem com valores zerados.</p>
+                        <p class="texto-corrido">A diferença é o adicional de mobilidade menos o adicional de FPM. Positiva, o município recebe mais pela mobilidade.</p>
+                    </div>
+                    <div>
+                        <h3>Valores por habitante</h3>
+                        <p class="texto-corrido">Para cada município, o valor é dividido pela sua população. Para um grupo (estado, porte ou quintil), somamos os valores e dividimos pela população somada do grupo, para que cidades grandes e pequenas pesem conforme o número de habitantes.</p>
+                    </div>
+                    <div>
+                        <h3>Quintil de receita</h3>
+                        <p class="texto-corrido">O quintil vem do <a href="https://ifem.fnp.org.br/" target="_blank" rel="noopener">IFEM, Indicadores de Financiamento e Equidade Municipal</a>, da FNP. Os municípios são ordenados pela receita corrente por habitante e divididos em cinco grupos de tamanho parecido. O 1º quintil reúne os de menor receita por habitante, os mais subfinanciados; o 5º, os de maior receita.</p>
+                        <p class="texto-corrido">Municípios que ainda não declararam os dados de receita ao Siconfi ficaram fora do cálculo e aparecem como "sem quintil".</p>
+                    </div>
+                    <div>
+                        <h3>Porte</h3>
+                        <p class="texto-corrido">Faixas pela população: menos de 10 mil, de 10 mil a 30 mil, de 30 mil a 80 mil, de 80 mil a 250 mil, de 250 mil a 500 mil e mais de 500 mil habitantes.</p>
+                        <p class="texto-corrido">Esta página não guarda o que você digita.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="rodape">
+            <span>Frente Nacional de Prefeitas e Prefeitos (FNP)</span>
+            <span>Dados: simulação FNP e IFEM</span>
+        </footer>
+    </div>
+</main>
+
+<ul class="sugestoes" id="lista-sugestoes" role="listbox" aria-label="Municípios encontrados" hidden></ul>
+<p class="sr-only" id="anuncio" role="status" aria-live="polite"></p>
+
+<!--DADOS-EMBUTIDOS-->
+
+<script>
+(function () {
+    'use strict';
+
+    /* ================= Constantes ================= */
+
+    // Faixas conferidas contra a coluna "Faixa populacional" da planilha (0 divergências).
+    var FAIXAS = [
+        { limite: 10000, nome: 'Menos de 10 mil hab.' },
+        { limite: 30000, nome: 'De 10 mil a 30 mil hab.' },
+        { limite: 80000, nome: 'De 30 mil a 80 mil hab.' },
+        { limite: 250000, nome: 'De 80 mil a 250 mil hab.' },
+        { limite: 500000, nome: 'De 250 mil a 500 mil hab.' },
+        { limite: Infinity, nome: 'Mais de 500 mil hab.' }
+    ];
+    var NOMES_QUINTIL = {
+        1: '1º quintil de receita',
+        2: '2º quintil de receita',
+        3: '3º quintil de receita',
+        4: '4º quintil de receita',
+        5: '5º quintil de receita',
+        0: 'Sem quintil'
+    };
+    var DETALHE_QUINTIL = {
+        1: 'menor receita por habitante',
+        5: 'maior receita por habitante',
+        0: 'receita não declarada ao Siconfi'
+    };
+    var NOMES_UF = {
+        AC: 'Acre', AL: 'Alagoas', AM: 'Amazonas', AP: 'Amapá', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal',
+        ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MG: 'Minas Gerais', MS: 'Mato Grosso do Sul', MT: 'Mato Grosso',
+        PA: 'Pará', PB: 'Paraíba', PE: 'Pernambuco', PI: 'Piauí', PR: 'Paraná', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte',
+        RO: 'Rondônia', RR: 'Roraima', RS: 'Rio Grande do Sul', SC: 'Santa Catarina', SE: 'Sergipe', SP: 'São Paulo', TO: 'Tocantins'
+    };
+    // Artigo de cada UF, para escrever "do Rio de Janeiro", "na Bahia", "em São Paulo".
+    var ARTIGO_UF = {
+        AC: 'o', AM: 'o', AP: 'o', CE: 'o', DF: 'o', ES: 'o', MA: 'o', MS: 'o', MT: 'o', PA: 'o', PI: 'o', PR: 'o',
+        RJ: 'o', RN: 'o', RS: 'o', TO: 'o', BA: 'a', PB: 'a'
+    };
+    function deUf(uf) { var a = ARTIGO_UF[uf]; return (a === 'o' ? 'do ' : a === 'a' ? 'da ' : 'de ') + NOMES_UF[uf]; }
+    function emUf(uf) { var a = ARTIGO_UF[uf]; return (a === 'o' ? 'no ' : a === 'a' ? 'na ' : 'em ') + NOMES_UF[uf]; }
+    // Posição (coluna, linha) de cada UF na grade do mapa (guia, 5.12).
+    var GRADE_UF = {
+        RR: [2, 0], AP: [4, 0],
+        AM: [1, 1], PA: [3, 1], MA: [4, 1], CE: [5, 1], RN: [6, 1],
+        AC: [0, 2], RO: [1, 2], MT: [2, 2], TO: [3, 2], PI: [4, 2], PE: [5, 2], PB: [6, 2],
+        MS: [2, 3], GO: [3, 3], DF: [4, 3], BA: [5, 3], AL: [6, 3],
+        SP: [3, 4], MG: [4, 4], ES: [5, 4], SE: [6, 4],
+        PR: [3, 5], RJ: [4, 5],
+        SC: [3, 6],
+        RS: [3, 7]
+    };
+    // Cinco degraus de branco sobre a faixa (guia, 2.8).
+    var DEGRAUS_MAPA = [
+        { fundo: 'rgba(255,255,255,.07)', texto: 'rgba(255,255,255,.75)' },
+        { fundo: 'rgba(255,255,255,.16)', texto: '#ffffff' },
+        { fundo: 'rgba(255,255,255,.28)', texto: '#ffffff' },
+        { fundo: 'rgba(255,255,255,.45)', texto: '#ffffff' },
+        { fundo: 'rgba(255,255,255,.7)', texto: '#103758' },
+        { fundo: '#ffffff', texto: '#103758' }
+    ];
+    // Exemplos da mesa inicial: São Paulo e Jaboatão dos Guararapes (maiores valores por
+    // habitante), Volta Redonda (ganha e está sem quintil), Petrolina (contemplada, mas
+    // recebe menos que no FPM). O menor município do país entra calculado.
+    // Recife não está na planilha (um dos 33 ausentes), por isso não aparece aqui.
+    var EXEMPLOS_IBGE = [3550308, 2607901, 3306305, 2611101];
+    var MAX_SUGESTOES = 8;
+    var LINHAS_RANKING = 5;
+
+    /* ================= Formatação (pt-BR) ================= */
+
+    function formatarNumero(v, casas) {
+        return v.toLocaleString('pt-BR', { minimumFractionDigits: casas || 0, maximumFractionDigits: casas || 0 });
+    }
+    function formatarReais(v) { return 'R$ ' + formatarNumero(v, 2); }
+    /** Valor curto para o número grande: R$ 1,83 bi / R$ 24,18 mi / R$ 245,09 mil. Sempre 2 casas. */
+    function partesReaisCurto(v) {
+        var abs = Math.abs(v);
+        if (abs >= 1e9) return { numero: formatarNumero(v / 1e9, 2), unidade: 'bi' };
+        if (abs >= 1e6) return { numero: formatarNumero(v / 1e6, 2), unidade: 'mi' };
+        if (abs >= 1e3) return { numero: formatarNumero(v / 1e3, 2), unidade: 'mil' };
+        return { numero: formatarNumero(v, 2), unidade: '' };
+    }
+    function formatarReaisCurto(v) {
+        var p = partesReaisCurto(v);
+        return 'R$ ' + p.numero + (p.unidade ? ' ' + p.unidade : '');
+    }
+    function formatarPercentual(v) { return formatarNumero(v * 100, 1) + '%'; }
+    function sinal(v) { return v > 0 ? '+' : v < 0 ? '−' : ''; }
+
+    /* ================= DOM sem innerHTML ================= */
+    // Todo texto entra por textContent: nomes vêm de planilha e não devem virar HTML.
+
+    function el(tag, atributos, filhos) {
+        var no = document.createElement(tag);
+        if (atributos) {
+            Object.keys(atributos).forEach(function (chave) {
+                var valor = atributos[chave];
+                if (valor === null || valor === undefined || valor === false) return;
+                if (chave === 'texto') no.textContent = valor;
+                else if (chave === 'classe') no.className = valor;
+                else if (chave.indexOf('on') === 0) no.addEventListener(chave.slice(2), valor);
+                else no.setAttribute(chave, valor === true ? '' : valor);
+            });
+        }
+        (filhos || []).forEach(function (filho) {
+            if (filho === null || filho === undefined || filho === false) return;
+            no.appendChild(typeof filho === 'string' ? document.createTextNode(filho) : filho);
+        });
+        return no;
+    }
+    function svgEl(tag, atributos, texto) {
+        var no = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.keys(atributos || {}).forEach(function (chave) { no.setAttribute(chave, atributos[chave]); });
+        if (texto !== undefined) no.textContent = texto;
+        return no;
+    }
+    function limpar(no) { while (no.firstChild) no.removeChild(no.firstChild); }
+    function valorReaisGrande(v) {
+        var p = partesReaisCurto(v);
+        return el('p', { classe: 'kit-numero-valor' }, [
+            el('span', { classe: 'rs', texto: (v < 0 ? '−' : '') + 'R$' }),
+            p.numero.replace('-', '') + (p.unidade ? ' ' + p.unidade : '')
+        ]);
+    }
+
+    /* ================= Dados ================= */
+
+    var estado = { municipios: [], porIbge: {}, agregados: null };
+
+    function normalizar(texto) {
+        return texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+            .replace(/[^a-z0-9]+/g, ' ').trim();
+    }
+    function indiceFaixa(populacao) {
+        for (var i = 0; i < FAIXAS.length; i++) if (populacao < FAIXAS[i].limite) return i;
+        return FAIXAS.length - 1;
+    }
+    function novoGrupo() { return { populacao: 0, fpm: 0, mob: 0, quantidade: 0, contemplados: 0, populacaoContemplada: 0 }; }
+    function somar(grupo, m) {
+        grupo.populacao += m.populacao; grupo.fpm += m.fpm; grupo.mob += m.mob; grupo.quantidade += 1;
+        if (m.mob > 0) { grupo.contemplados += 1; grupo.populacaoContemplada += m.populacao; }
+    }
+
+    /** Lê o JSON embutido (versão de arquivo único) ou busca o arquivo ao lado da página. */
+    function carregarDados() {
+        var embutido = document.getElementById('dados-municipios');
+        if (embutido) {
+            try { return Promise.resolve(JSON.parse(embutido.textContent)); }
+            catch (erro) { return Promise.reject(new Error('JSON embutido inválido: ' + erro.message)); }
+        }
+        return fetch('dados-municipios.json').then(function (resposta) {
+            if (!resposta.ok) throw new Error('HTTP ' + resposta.status + ' ao buscar dados-municipios.json');
+            return resposta.json();
+        });
+    }
+
+    function prepararDados(bruto) {
+        var col = {};
+        bruto.colunas.forEach(function (nome, i) { col[nome] = i; });
+        ['ibge', 'nome', 'uf', 'populacao', 'quintil', 'fpm', 'mobilidade'].forEach(function (nome) {
+            if (col[nome] === undefined) throw new Error('Coluna ausente no JSON: ' + nome);
+        });
+
+        var brasil = novoGrupo(), porUf = {}, porFaixa = FAIXAS.map(novoGrupo), porQuintil = [0, 1, 2, 3, 4, 5].map(novoGrupo);
+        var contagemNomes = {};
+
+        estado.municipios = bruto.municipios.map(function (linha) {
+            var m = {
+                ibge: linha[col.ibge], nome: linha[col.nome], uf: linha[col.uf], populacao: linha[col.populacao],
+                quintil: linha[col.quintil], fpm: linha[col.fpm], mob: linha[col.mobilidade]
+            };
+            m.diferenca = m.mob - m.fpm;
+            m.faixa = indiceFaixa(m.populacao);
+            m.chave = normalizar(m.nome);
+            m.palavras = m.chave.split(' ');
+            contagemNomes[m.chave] = (contagemNomes[m.chave] || 0) + 1;
+            somar(brasil, m);
+            somar(porUf[m.uf] || (porUf[m.uf] = novoGrupo()), m);
+            somar(porFaixa[m.faixa], m);
+            somar(porQuintil[m.quintil], m);
+            estado.porIbge[m.ibge] = m;
+            return m;
+        });
+
+        // Municípios fora da simulação (transporte coletivo não gerido pela prefeitura):
+        // entram na busca com valores zerados, mas NÃO nos totais, médias e rankings,
+        // porque não têm população na base e distorceriam o "por habitante".
+        var colFora = {};
+        (bruto.colunas_fora || []).forEach(function (nome, i) { colFora[nome] = i; });
+        (bruto.fora || []).forEach(function (linha) {
+            var m = {
+                ibge: linha[colFora.ibge], nome: linha[colFora.nome], uf: linha[colFora.uf],
+                populacao: 0, quintil: null, fpm: 0, mob: 0, diferenca: 0, foraDaSimulacao: true
+            };
+            m.chave = normalizar(m.nome);
+            contagemNomes[m.chave] = (contagemNomes[m.chave] || 0) + 1;
+            estado.porIbge[m.ibge] = m;
+            estado.municipios.push(m);
+        });
+        estado.quantidadeFora = (bruto.fora || []).length;
+        estado.municipios.forEach(function (m) { m.nomeRepetido = contagemNomes[m.chave] > 1; });
+
+        // Ranking por UF de quem recebe o adicional de mobilidade, do maior para o menor.
+        var rankingUf = {};
+        estado.municipios.forEach(function (m) {
+            if (m.mob > 0) (rankingUf[m.uf] || (rankingUf[m.uf] = [])).push(m);
+        });
+        Object.keys(rankingUf).forEach(function (uf) { rankingUf[uf].sort(function (a, b) { return b.mob - a.mob; }); });
+
+        estado.agregados = { brasil: brasil, porUf: porUf, porFaixa: porFaixa, porQuintil: porQuintil, rankingUf: rankingUf };
+    }
+
+    function porHabitante(grupo, campo) { return grupo.populacao ? grupo[campo] / grupo.populacao : 0; }
+
+    /* ================= Busca ================= */
+
+    /**
+     * Procura municípios pelo texto digitado.
+     * Regras: ignora acento e caixa; se a última palavra for uma UF e houver mais
+     * palavras, filtra pela UF ("campinas sp"). Ordem: começa com o texto, depois
+     * alguma palavra começa com o texto, depois contém; empate pela população.
+     * @param {string} texto
+     * @returns {Array} até MAX_SUGESTOES municípios
+     */
+    function buscar(texto) {
+        var consulta = normalizar(texto);
+        if (!consulta) return [];
+        var partes = consulta.split(' '), uf = null;
+        var ultima = partes[partes.length - 1].toUpperCase();
+        if (partes.length > 1 && NOMES_UF[ultima]) { uf = ultima; partes.pop(); consulta = partes.join(' '); }
+
+        var achados = [];
+        estado.municipios.forEach(function (m) {
+            if (uf && m.uf !== uf) return;
+            var nota;
+            if (m.chave === consulta) nota = 0;
+            else if (m.chave.indexOf(consulta) === 0) nota = 1;
+            else if ((' ' + m.chave).indexOf(' ' + consulta) !== -1) nota = 2;
+            else if (m.chave.indexOf(consulta) !== -1) nota = 3;
+            else return;
+            achados.push({ m: m, nota: nota });
+        });
+        // Fora da simulação têm população 0 e caem para o fim entre os de mesma nota.
+        achados.sort(function (a, b) { return a.nota - b.nota || b.m.populacao - a.m.populacao; });
+        return achados.slice(0, MAX_SUGESTOES).map(function (a) { return a.m; });
+    }
+
+    var campo = document.getElementById('campo-busca');
+    var lista = document.getElementById('lista-sugestoes');
+    var erroBusca = document.getElementById('busca-erro');
+    var sugestoesAtuais = [], indiceAtivo = -1;
+
+    function posicionarLista() {
+        var r = campo.getBoundingClientRect();
+        lista.style.left = (r.left + window.scrollX) + 'px';
+        lista.style.top = (r.bottom + window.scrollY + 6) + 'px';
+        lista.style.width = Math.max(r.width, 260) + 'px';
+    }
+    function fecharLista() {
+        lista.hidden = true;
+        campo.setAttribute('aria-expanded', 'false');
+        campo.removeAttribute('aria-activedescendant');
+        indiceAtivo = -1;
+    }
+    function nomeComUf(m) { return m.nome + ' (' + m.uf + ')'; }
+
+    function destacarTrecho(nome, consulta) {
+        // Marca em negrito o trecho que casou, comparando sem acento mas exibindo o nome original.
+        var chave = normalizar(textoSemUf(consulta));
+        if (!chave) return [nome];
+        // Tira o acento letra a letra para o texto comparado ter o mesmo tamanho do nome
+        // exibido; assim a posição achada vale para cortar o nome original.
+        var semAcento = nome.split('').map(function (letra) {
+            var base = letra.normalize('NFD').replace(/[̀-ͯ]/g, '');
+            return base.length === 1 ? base : letra;
+        }).join('').toLowerCase();
+        // Pontuação vira espaço, como em normalizar(). Nomes com dois sinais seguidos
+        // ficam sem destaque, o que é aceitável: o destaque é só visual.
+        var semPontuacao = semAcento.replace(/[^a-z0-9]/g, ' ');
+        var pos = semPontuacao.indexOf(chave);
+        if (pos === -1) return [nome];
+        return [nome.slice(0, pos), el('mark', { texto: nome.slice(pos, pos + chave.length) }), nome.slice(pos + chave.length)];
+    }
+    function textoSemUf(texto) {
+        var partes = normalizar(texto).split(' ');
+        if (partes.length > 1 && NOMES_UF[partes[partes.length - 1].toUpperCase()]) partes.pop();
+        return partes.join(' ');
+    }
+
+    function mostrarSugestoes() {
+        var texto = campo.value;
+        erroBusca.hidden = true;
+        campo.removeAttribute('aria-invalid');
+        sugestoesAtuais = buscar(texto);
+        limpar(lista);
+        if (!normalizar(texto)) { fecharLista(); return; }
+        if (!sugestoesAtuais.length) {
+            lista.appendChild(el('li', { classe: 'sugestoes-vazio', role: 'presentation', texto: 'Nenhum município com esse nome na base.' }));
+        }
+        sugestoesAtuais.forEach(function (m, i) {
+            lista.appendChild(el('li', {
+                id: 'sugestao-' + i, classe: 'sugestao', role: 'option', 'aria-selected': 'false',
+                onmousedown: function (evento) { evento.preventDefault(); },  // não tira o foco do campo antes do clique
+                onclick: function () { escolher(m); }
+            }, [
+                el('span', { classe: 'sugestao-nome' }, destacarTrecho(m.nome, texto)),
+                el('span', { classe: 'sugestao-info', texto: m.uf + ' · ' + (m.foraDaSimulacao ? 'fora da simulação' : formatarNumero(m.populacao) + ' hab.') })
+            ]));
+        });
+        indiceAtivo = sugestoesAtuais.length ? 0 : -1;
+        marcarAtivo();
+        posicionarLista();
+        lista.hidden = false;
+        campo.setAttribute('aria-expanded', 'true');
+    }
+    function marcarAtivo() {
+        Array.prototype.forEach.call(lista.querySelectorAll('[role="option"]'), function (item, i) {
+            item.setAttribute('aria-selected', i === indiceAtivo ? 'true' : 'false');
+            if (i === indiceAtivo) item.scrollIntoView({ block: 'nearest' });
+        });
+        if (indiceAtivo >= 0) campo.setAttribute('aria-activedescendant', 'sugestao-' + indiceAtivo);
+        else campo.removeAttribute('aria-activedescendant');
+    }
+    function escolher(m) {
+        campo.value = nomeComUf(m);
+        fecharLista();
+        irPara(m);
+    }
+
+    campo.addEventListener('input', mostrarSugestoes);
+    campo.addEventListener('focus', function () { if (campo.value && sugestoesAtuais.length && !estadoSelecionadoIgualCampo()) mostrarSugestoes(); });
+    campo.addEventListener('blur', function () { setTimeout(fecharLista, 120); });
+    campo.addEventListener('keydown', function (evento) {
+        var aberta = !lista.hidden && sugestoesAtuais.length;
+        if (evento.key === 'ArrowDown') {
+            evento.preventDefault();
+            if (!aberta) { mostrarSugestoes(); return; }
+            indiceAtivo = (indiceAtivo + 1) % sugestoesAtuais.length; marcarAtivo();
+        } else if (evento.key === 'ArrowUp') {
+            if (!aberta) return;
+            evento.preventDefault();
+            indiceAtivo = (indiceAtivo - 1 + sugestoesAtuais.length) % sugestoesAtuais.length; marcarAtivo();
+        } else if (evento.key === 'Escape') {
+            if (!lista.hidden) { evento.preventDefault(); fecharLista(); }
+        }
+    });
+    document.getElementById('form-busca').addEventListener('submit', function (evento) {
+        evento.preventDefault();
+        var texto = campo.value;
+        if (!normalizar(texto)) {
+            mostrarErroBusca('Digite o nome de um município.');
+            return;
+        }
+        var escolhido = (!lista.hidden && indiceAtivo >= 0 && sugestoesAtuais[indiceAtivo]) || buscar(texto)[0];
+        if (!escolhido) {
+            mostrarErroBusca('Não encontramos "' + texto.trim() + '" entre os ' + formatarNumero(estado.municipios.length) + ' municípios do país. Confira a grafia.');
+            return;
+        }
+        escolher(escolhido);
+    });
+    function mostrarErroBusca(mensagem) {
+        fecharLista();
+        erroBusca.textContent = mensagem;
+        erroBusca.hidden = false;
+        campo.setAttribute('aria-invalid', 'true');
+        campo.setAttribute('aria-describedby', 'busca-ajuda busca-erro');
+    }
+    function estadoSelecionadoIgualCampo() {
+        return estado.selecionado && campo.value === nomeComUf(estado.selecionado);
+    }
+    window.addEventListener('resize', function () { if (!lista.hidden) posicionarLista(); });
+
+    /* ================= Navegação por endereço (#ibge-3550308) ================= */
+    // Permite mandar o link do resultado de um município. Só o hash simples passa
+    // pelo visualizador, então nada de query string.
+
+    function irPara(m) {
+        var alvo = '#ibge-' + m.ibge;
+        if (location.hash !== alvo) location.hash = alvo;
+        else mostrarMunicipio(m, true);
+    }
+    function lerEndereco(rolar) {
+        var achado = /^#ibge-(\d{7})$/.exec(location.hash);
+        var m = achado && estado.porIbge[Number(achado[1])];
+        if (m) { campo.value = nomeComUf(m); mostrarMunicipio(m, rolar); }
+        else mostrarBrasil();
+    }
+    window.addEventListener('hashchange', function () { lerEndereco(true); });
+
+    /* ================= Peças de resultado ================= */
+
+    function cartaoNumero(opcoes) {
+        return el('div', { classe: 'kit-numero' + (opcoes.classe ? ' ' + opcoes.classe : '') }, [
+            el('p', { classe: 'kit-numero-rotulo', texto: opcoes.rotulo }),
+            opcoes.valor,
+            opcoes.detalhe ? el('p', { classe: 'kit-numero-detalhe' }, opcoes.detalhe) : null
+        ]);
+    }
+
+    /**
+     * Gráfico de barras pareadas (mobilidade e FPM por habitante).
+     * Todas as linhas usam a mesma escala, a do maior valor do gráfico.
+     * @param {Array<{rotulo:string, detalhe?:string, mob:number, fpm:number, atual?:boolean}>} linhas
+     */
+    function barrasPareadas(linhas) {
+        var maximo = 0;
+        linhas.forEach(function (l) { maximo = Math.max(maximo, l.mob, l.fpm); });
+        if (!maximo) maximo = 1;
+        return el('div', { classe: 'barras', role: 'list' }, linhas.map(function (l) {
+            function barra(tipo, valor, nome) {
+                return el('div', { classe: 'barra barra-' + tipo }, [
+                    el('div', { classe: 'barra-trilho', 'aria-hidden': 'true' }, [
+                        el('div', { classe: 'barra-preenchida', style: 'width:' + (valor / maximo * 100).toFixed(2) + '%' })
+                    ]),
+                    el('span', { classe: 'barra-valor' }, [el('span', { classe: 'sr-only', texto: nome + ': ' }), formatarReais(valor)])
+                ]);
+            }
+            return el('div', { classe: 'barra-linha', role: 'listitem', 'aria-current': l.atual ? 'true' : null }, [
+                el('div', { classe: 'barra-rotulo' }, [l.rotulo, l.detalhe ? el('small', { texto: l.detalhe }) : null]),
+                el('div', { classe: 'barra-pares' }, [
+                    barra('mob', l.mob, 'Adicional de mobilidade por habitante'),
+                    barra('fpm', l.fpm, 'Adicional de FPM por habitante')
+                ])
+            ]);
+        }));
+    }
+    function legendaBarras() {
+        return el('div', { classe: 'legenda', 'aria-hidden': 'true' }, [
+            el('span', { classe: 'legenda-item' }, [el('span', { classe: 'legenda-cor legenda-cor-mob' }), 'Adicional de mobilidade']),
+            el('span', { classe: 'legenda-item' }, [el('span', { classe: 'legenda-cor legenda-cor-fpm' }), 'Adicional de FPM'])
+        ]);
+    }
+    function seloQuintil(q) {
+        var classe = q === 0 ? 'selo selo-ambar' : q === 1 ? 'selo selo-azul' : 'selo';
+        var detalhe = DETALHE_QUINTIL[q];
+        return el('span', { classe: classe, title: 'Quintil de receita corrente por habitante (IFEM)' },
+            [NOMES_QUINTIL[q] + (detalhe ? ', ' + detalhe : '')]);
+    }
+    function botaoCopiarLink() {
+        var botao = el('button', { type: 'button', classe: 'btn btn-secondary btn-sm' }, ['Copiar link deste resultado']);
+        botao.addEventListener('click', function () {
+            var endereco = location.href;
+            var aviso = function (texto) { botao.textContent = texto; setTimeout(function () { botao.textContent = 'Copiar link deste resultado'; }, 2500); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(endereco).then(function () { aviso('Link copiado'); }, function (erro) {
+                    console.error('Falha ao copiar o link', { endereco: endereco, erro: erro });
+                    aviso('Não deu para copiar; use a barra de endereço');
+                });
+            } else {
+                aviso('Não deu para copiar; use a barra de endereço');
+            }
+        });
+        return botao;
+    }
+
+    /* ================= Mesa: Brasil (estado inicial) ================= */
+
+    function mostrarBrasil() {
+        estado.selecionado = null;
+        var a = estado.agregados, br = a.brasil;
+        var mesa = document.getElementById('mesa');
+        limpar(mesa);
+
+        var menor = estado.municipios.filter(function (m) { return !m.foraDaSimulacao; })
+            .reduce(function (x, y) { return y.populacao < x.populacao ? y : x; });
+        var exemplos = EXEMPLOS_IBGE.map(function (c) { return estado.porIbge[c]; }).filter(Boolean).concat([menor]);
+
+        mesa.appendChild(el('div', { classe: 'mesa-cabecalho' }, [
+            el('div', { classe: 'mesa-identidade' }, [
+                el('p', { classe: 'mesa-sobretitulo', texto: 'Todos os municípios da simulação' }),
+                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: 'Brasil' }),
+                el('div', { classe: 'selos' }, [
+                    el('span', { classe: 'selo', texto: formatarNumero(br.quantidade) + ' municípios' }),
+                    el('span', { classe: 'selo', texto: formatarNumero(br.populacao) + ' habitantes' })
+                ])
+            ])
+        ]));
+
+        mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
+            el('p', { classe: 'lead' }, [
+                'O adicional de mobilidade distribui ', el('strong', { texto: formatarReaisCurto(br.mob) }),
+                ' entre ', el('strong', { texto: formatarNumero(br.contemplados) + ' municípios' }),
+                ', onde vivem ', el('strong', { texto: formatarPercentual(br.populacaoContemplada / br.populacao) }),
+                ' dos brasileiros. Por habitante, são ', el('strong', { texto: formatarReais(porHabitante(br, 'mob')) }),
+                ', contra ', formatarReais(porHabitante(br, 'fpm')), ' do adicional de FPM.'
+            ]),
+            el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Totais do Brasil' }, [
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(br.mob),
+                    detalhe: [el('span', { classe: 'num', texto: formatarReais(porHabitante(br, 'mob')) }), ' por habitante'] }),
+                cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(br.fpm),
+                    detalhe: [el('span', { classe: 'num', texto: formatarReais(porHabitante(br, 'fpm')) }), ' por habitante'] }),
+                cartaoNumero({ classe: br.mob >= br.fpm ? 'kit-numero-sobe' : 'kit-numero-desce', rotulo: 'Diferença', valor: valorReaisGrande(br.mob - br.fpm),
+                    detalhe: ['Mobilidade menos FPM'] })
+            ]),
+            el('div', { classe: 'bloco' }, [
+                el('h3', { classe: 'bloco-titulo', texto: 'Veja um exemplo' }),
+                el('p', { classe: 'bloco-subtitulo', texto: 'Ou digite o nome do seu município no campo acima.' }),
+                el('div', { classe: 'exemplos' }, exemplos.map(function (m) {
+                    return el('button', { type: 'button', classe: 'chip', onclick: function () { escolher(m); } }, [nomeComUf(m)]);
+                }))
+            ])
+        ]));
+        mesa.setAttribute('aria-busy', 'false');
+        atualizarMapa(null);
+        atualizarGraficosNacionais(null);
+        document.title = 'Mobilidade no seu município';
+    }
+
+    /* ================= Mesa: município ================= */
+
+    function fraseMunicipio(m) {
+        var nome = el('strong', { texto: m.nome });
+        if (m.mob > 0 && m.mob > m.fpm) {
+            var vezes = m.fpm > 0 ? m.mob / m.fpm : 0;
+            return [
+                'Com o adicional de mobilidade, ', nome, ' recebe ', el('strong', { texto: formatarReaisCurto(m.mob) }), ', ',
+                el('span', { classe: 'sobe', texto: formatarReaisCurto(m.diferenca) + ' a mais' }),
+                ' do que pelo adicional de FPM' + (vezes >= 2 ? ', ' + formatarNumero(vezes, 1) + ' vezes o valor.' : '.')
+            ];
+        }
+        if (m.mob > 0) {
+            return [
+                'Com o adicional de mobilidade, ', nome, ' recebe ', el('strong', { texto: formatarReaisCurto(m.mob) }),
+                '. Pelo adicional de FPM, receberia ', el('strong', { texto: formatarReaisCurto(m.fpm) }), '.'
+            ];
+        }
+        return [
+            nome, ' não está entre os ', formatarNumero(estado.agregados.brasil.contemplados),
+            ' municípios contemplados pelo adicional de mobilidade. Pelo adicional de FPM, receberia ',
+            el('strong', { texto: formatarReaisCurto(m.fpm) }), '.'
+        ];
+    }
+
+    function rolarParaMesa() {
+        var mesa = document.getElementById('mesa');
+        var topo = mesa.getBoundingClientRect().top;
+        if (topo > window.innerHeight * 0.6 || topo < 0) {
+            var suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            mesa.scrollIntoView({ behavior: suave ? 'smooth' : 'auto', block: 'start' });
+        }
+    }
+
+    /** Município fora da planilha: tudo zerado, com o motivo. Sem médias nem ranking. */
+    function mostrarForaDaSimulacao(m, rolar) {
+        estado.selecionado = m;
+        var mesa = document.getElementById('mesa');
+        limpar(mesa);
+        mesa.appendChild(el('div', { classe: 'mesa-cabecalho' }, [
+            el('div', { classe: 'mesa-identidade' }, [
+                el('p', { classe: 'mesa-sobretitulo', texto: NOMES_UF[m.uf] + ' · código IBGE ' + m.ibge }),
+                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: nomeComUf(m) }),
+                el('div', { classe: 'selos' }, [el('span', { classe: 'selo', texto: 'Fora da simulação' })])
+            ]),
+            el('div', { classe: 'mesa-acoes' }, [botaoCopiarLink(), botaoVerBrasil()])
+        ]));
+        mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
+            el('p', { classe: 'lead' }, [
+                el('strong', { texto: m.nome }),
+                ' aparece com valores zerados: o transporte coletivo do município não é gerido pela prefeitura, por isso ele fica fora da simulação.'
+            ]),
+            el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
+                cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(0) }),
+                cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(0) }),
+                cartaoNumero({ rotulo: 'Diferença', valor: valorReaisGrande(0) })
+            ]),
+            el('p', { classe: 'aviso aviso-info', role: 'status' }, [
+                'Ficam fora da simulação os ' + formatarNumero(estado.quantidadeFora) + ' municípios em que o transporte coletivo é gerido pelo estado ou por consórcio metropolitano, como nas regiões de Recife, Aracaju, Vitória e Goiânia.'
+            ])
+        ]));
+        mesa.setAttribute('aria-busy', 'false');
+        atualizarMapa(m.uf);
+        atualizarGraficosNacionais(null);
+        document.title = nomeComUf(m) + ' · Mobilidade no seu município';
+        document.getElementById('anuncio').textContent = 'Resultado de ' + nomeComUf(m) + ' carregado.';
+        if (rolar) rolarParaMesa();
+    }
+
+    function botaoVerBrasil() {
+        return el('button', { type: 'button', classe: 'btn btn-subtle btn-sm', onclick: function () {
+            campo.value = '';
+            if (location.hash) location.hash = ''; else mostrarBrasil();
+            campo.focus();
+        } }, ['Ver o Brasil']);
+    }
+
+    function mostrarMunicipio(m, rolar) {
+        if (m.foraDaSimulacao) { mostrarForaDaSimulacao(m, rolar); return; }
+        estado.selecionado = m;
+        var a = estado.agregados, uf = a.porUf[m.uf], faixa = a.porFaixa[m.faixa], quintil = a.porQuintil[m.quintil];
+        var mesa = document.getElementById('mesa');
+        limpar(mesa);
+
+        var mobHab = m.mob / m.populacao, fpmHab = m.fpm / m.populacao;
+
+        mesa.appendChild(el('div', { classe: 'mesa-cabecalho' }, [
+            el('div', { classe: 'mesa-identidade' }, [
+                el('p', { classe: 'mesa-sobretitulo', texto: NOMES_UF[m.uf] + ' · código IBGE ' + m.ibge }),
+                el('h2', { classe: 'mesa-titulo', id: 'titulo-resultado', tabindex: '-1', texto: nomeComUf(m) }),
+                el('div', { classe: 'selos' }, [
+                    m.mob > 0 ? el('span', { classe: 'selo selo-verde', texto: 'Contemplado pela mobilidade' }) : el('span', { classe: 'selo', texto: 'Não contemplado pela mobilidade' }),
+                    el('span', { classe: 'selo', texto: formatarNumero(m.populacao) + ' habitantes' }),
+                    seloQuintil(m.quintil)
+                ])
+            ]),
+            el('div', { classe: 'mesa-acoes' }, [
+                botaoCopiarLink(),
+                botaoVerBrasil()
+            ])
+        ]));
+
+        var corpo = el('div', { classe: 'mesa-corpo' });
+        corpo.appendChild(el('p', { classe: 'lead' }, fraseMunicipio(m)));
+
+        corpo.appendChild(el('div', { classe: 'kit-numeros', role: 'group', 'aria-label': 'Valores de ' + m.nome }, [
+            cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Adicional de mobilidade', valor: valorReaisGrande(m.mob),
+                detalhe: [el('span', { classe: 'num', texto: formatarReais(mobHab) }), ' por habitante'] }),
+            cartaoNumero({ rotulo: 'Adicional de FPM', valor: valorReaisGrande(m.fpm),
+                detalhe: [el('span', { classe: 'num', texto: formatarReais(fpmHab) }), ' por habitante'] }),
+            cartaoNumero({ classe: m.diferenca > 0 ? 'kit-numero-sobe' : m.diferenca < 0 ? 'kit-numero-desce' : '', rotulo: 'Diferença', valor: valorReaisGrande(m.diferenca),
+                detalhe: [el('span', { classe: 'num', texto: sinal(m.diferenca) + formatarReais(Math.abs(m.diferenca)) }), ' pela mobilidade'] })
+        ]));
+
+        if (m.quintil === 0) {
+            corpo.appendChild(el('p', { classe: 'aviso aviso-atencao', role: 'status' }, [
+                el('strong', { texto: 'Sem quintil de receita. ' }),
+                m.nome + ' ainda não declarou os dados de receita ao Siconfi, por isso ficou fora do cálculo de quintis do IFEM.'
+            ]));
+        }
+        if (m.mob === 0) {
+            corpo.appendChild(el('p', { classe: 'aviso aviso-info', role: 'status' }, [
+                'O adicional de mobilidade se concentra nos municípios com mais de 50 mil habitantes, onde vive a maior parte da população. Os ',
+                formatarNumero(a.brasil.contemplados), ' contemplados reúnem ',
+                formatarPercentual(a.brasil.populacaoContemplada / a.brasil.populacao), ' da população; ', emUf(m.uf), ', ',
+                formatarPercentual(uf.populacaoContemplada / uf.populacao), ' dos moradores vivem num deles.'
+            ]));
+        }
+
+        // Comparação por habitante com os grupos a que o município pertence.
+        var linhas = [
+            { rotulo: m.nome, detalhe: 'este município', mob: mobHab, fpm: fpmHab, atual: true },
+            { rotulo: NOMES_UF[m.uf], detalhe: formatarNumero(uf.quantidade) + ' municípios', mob: porHabitante(uf, 'mob'), fpm: porHabitante(uf, 'fpm') },
+            { rotulo: FAIXAS[m.faixa].nome, detalhe: 'mesmo porte', mob: porHabitante(faixa, 'mob'), fpm: porHabitante(faixa, 'fpm') }
+        ];
+        if (m.quintil) linhas.push({ rotulo: NOMES_QUINTIL[m.quintil], detalhe: 'mesma faixa de receita', mob: porHabitante(quintil, 'mob'), fpm: porHabitante(quintil, 'fpm') });
+        linhas.push({ rotulo: 'Brasil', detalhe: 'todos os municípios', mob: porHabitante(a.brasil, 'mob'), fpm: porHabitante(a.brasil, 'fpm') });
+
+        corpo.appendChild(el('section', { classe: 'bloco', 'aria-labelledby': 'titulo-comparacao' }, [
+            el('h3', { classe: 'bloco-titulo', id: 'titulo-comparacao', texto: 'Por habitante, comparado a municípios parecidos' }),
+            el('p', { classe: 'bloco-subtitulo', texto: 'Valor de cada adicional dividido pela população. Nos grupos, a soma dos valores sobre a população somada.' }),
+            legendaBarras(),
+            barrasPareadas(linhas)
+        ]));
+
+        corpo.appendChild(blocoRanking(m, uf));
+        mesa.appendChild(corpo);
+        mesa.setAttribute('aria-busy', 'false');
+
+        atualizarMapa(m.uf);
+        atualizarGraficosNacionais(m);
+        document.title = nomeComUf(m) + ' · Mobilidade no seu município';
+        document.getElementById('anuncio').textContent = 'Resultado de ' + nomeComUf(m) + ' carregado.';
+
+        if (rolar) rolarParaMesa();
+    }
+
+    /** Tabela com os que mais recebem na UF; o município escolhido aparece mesmo fora do topo. */
+    function blocoRanking(m, uf) {
+        var ranking = estado.agregados.rankingUf[m.uf] || [];
+        var posicao = ranking.indexOf(m);
+        var resumo;
+        if (!ranking.length) {
+            resumo = 'Nenhum município ' + deUf(m.uf) + ' é contemplado pelo adicional de mobilidade nesta simulação.';
+        } else if (posicao >= 0) {
+            resumo = m.nome + ' é o ' + (posicao + 1) + 'º que mais recebe entre os ' + ranking.length + ' municípios contemplados ' + deUf(m.uf) + '.';
+        } else {
+            resumo = ranking.length + ' de ' + formatarNumero(uf.quantidade) + ' municípios ' + deUf(m.uf) + ' são contemplados. Neles vivem ' +
+                formatarPercentual(uf.populacaoContemplada / uf.populacao) + ' dos moradores do estado.';
+        }
+
+        var bloco = el('section', { classe: 'bloco', 'aria-labelledby': 'titulo-ranking' }, [
+            el('h3', { classe: 'bloco-titulo', id: 'titulo-ranking', texto: 'No estado' }),
+            el('p', { classe: 'bloco-subtitulo', texto: resumo })
+        ]);
+        if (!ranking.length) return bloco;
+
+        var corpoTabela = el('tbody');
+        function linha(x, i) {
+            return el('tr', { 'aria-current': x === m ? 'true' : null }, [
+                el('td', { classe: 'num', texto: (i + 1) + 'º' }),
+                el('td', {}, [x === m ? x.nome : el('button', { type: 'button', classe: 'link-tabela', onclick: function () { escolher(x); } }, [x.nome])]),
+                el('td', { classe: 'num', texto: formatarNumero(x.populacao) }),
+                el('td', { classe: 'num', texto: formatarReais(x.mob) }),
+                el('td', { classe: 'num', texto: formatarReais(x.mob / x.populacao) })
+            ]);
+        }
+        ranking.slice(0, LINHAS_RANKING).forEach(function (x, i) { corpoTabela.appendChild(linha(x, i)); });
+        if (posicao >= LINHAS_RANKING) {
+            if (posicao > LINHAS_RANKING) corpoTabela.appendChild(el('tr', { classe: 'tabela-reticencias' }, [el('td', { colspan: '5', texto: '…' })]));
+            corpoTabela.appendChild(linha(m, posicao));
+        }
+        bloco.appendChild(el('div', { classe: 'tabela-rolagem' }, [
+            el('table', { classe: 'tabela' }, [
+                el('caption', { classe: 'sr-only', texto: 'Municípios ' + deUf(m.uf) + ' que mais recebem o adicional de mobilidade' }),
+                el('thead', {}, [el('tr', {}, [
+                    el('th', { classe: 'num', scope: 'col', texto: 'Posição' }),
+                    el('th', { scope: 'col', texto: 'Município' }),
+                    el('th', { classe: 'num', scope: 'col', texto: 'População' }),
+                    el('th', { classe: 'num', scope: 'col', texto: 'Adicional de mobilidade' }),
+                    el('th', { classe: 'num', scope: 'col', texto: 'Por habitante' })
+                ])]),
+                corpoTabela
+            ])
+        ]));
+        return bloco;
+    }
+
+    /* ================= Faixa: fatos e mapa ================= */
+
+    function preencherFatos() {
+        var br = estado.agregados.brasil;
+        var p = partesReaisCurto(br.mob);
+        var fatoTotal = document.getElementById('fato-total');
+        limpar(fatoTotal);
+        fatoTotal.appendChild(el('span', { classe: 'rs', texto: 'R$' }));
+        fatoTotal.appendChild(document.createTextNode(p.numero + ' ' + p.unidade));
+        document.getElementById('fato-municipios').textContent = formatarNumero(br.contemplados);
+        document.getElementById('fato-populacao').textContent = formatarNumero(br.populacaoContemplada / br.populacao * 100, 0) + '%';
+        document.getElementById('metodo-total-municipios').textContent = formatarNumero(br.quantidade);
+        document.getElementById('metodo-total-fora').textContent = formatarNumero(estado.quantidadeFora);
+    }
+
+    function atualizarMapa(ufDestaque) {
+        var svg = document.getElementById('mapa-uf');
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        var porUf = estado.agregados.porUf;
+        Object.keys(GRADE_UF).forEach(function (uf) {
+            var g = porUf[uf];
+            var parcela = g ? g.populacaoContemplada / g.populacao : 0;
+            // Degrau: 0 quando ninguém é contemplado; senão 1..5 pela parcela (0 a 100%).
+            var degrau = parcela > 0 ? Math.max(1, Math.ceil(parcela * 5)) : 0;
+            var cor = uf === ufDestaque ? { fundo: '#eeaf19', texto: '#103758' } : DEGRAUS_MAPA[degrau];
+            var x = GRADE_UF[uf][0] * 44, y = GRADE_UF[uf][1] * 44;
+            var grupo = svgEl('g', { role: 'img', 'aria-label': NOMES_UF[uf] + ': ' + formatarPercentual(parcela) + ' da população em municípios contemplados' });
+            grupo.appendChild(svgEl('title', {}, NOMES_UF[uf] + ': ' + formatarPercentual(parcela)));
+            grupo.appendChild(svgEl('rect', { x: x, y: y, width: 40, height: 40, rx: 6, fill: cor.fundo }));
+            grupo.appendChild(svgEl('text', { x: x + 5, y: y + 14, fill: cor.texto, 'font-family': 'Work Sans, sans-serif', 'font-size': 10, 'font-weight': 600 }, uf));
+            grupo.appendChild(svgEl('text', { x: x + 5, y: y + 34, fill: cor.texto, 'font-family': 'Outfit, sans-serif', 'font-size': 12, 'font-weight': 600 },
+                formatarNumero(parcela * 100, 0) + '%'));
+            svg.appendChild(grupo);
+        });
+        document.getElementById('mapa-legenda').textContent = ufDestaque
+            ? 'Parcela da população de cada UF que vive em municípios contemplados. Em amarelo, ' + NOMES_UF[ufDestaque] + '.'
+            : 'Parcela da população de cada UF que vive em municípios contemplados.';
+    }
+
+    /* ================= Gráficos nacionais (blocos chapados) ================= */
+
+    function atualizarGraficosNacionais(m) {
+        var a = estado.agregados, br = a.brasil;
+
+        var linhasPorte = a.porFaixa.map(function (g, i) {
+            return {
+                rotulo: FAIXAS[i].nome, detalhe: formatarPercentual(g.populacao / br.populacao) + ' da população',
+                mob: porHabitante(g, 'mob'), fpm: porHabitante(g, 'fpm'), atual: m && m.faixa === i
+            };
+        });
+        var menores = a.porFaixa[0], maiores = a.porFaixa[FAIXAS.length - 1];
+        document.getElementById('texto-porte').textContent =
+            'O adicional de FPM paga ' + formatarReais(porHabitante(menores, 'fpm')) + ' por habitante nas cidades com menos de 10 mil habitantes e ' +
+            formatarReais(porHabitante(maiores, 'fpm')) + ' nas com mais de 500 mil, onde vive ' + formatarPercentual(maiores.populacao / br.populacao) +
+            ' da população. O de mobilidade chega a ' + formatarReais(porHabitante(maiores, 'mob')) + ' por habitante nessas cidades.';
+        var alvoPorte = document.getElementById('barras-porte');
+        alvoPorte.replaceWith(Object.assign(barrasPareadas(linhasPorte), { id: 'barras-porte' }));
+
+        var linhasQuintil = [1, 2, 3, 4, 5, 0].map(function (q) {
+            var g = a.porQuintil[q];
+            return {
+                rotulo: NOMES_QUINTIL[q], detalhe: DETALHE_QUINTIL[q] || formatarNumero(g.quantidade) + ' municípios',
+                mob: porHabitante(g, 'mob'), fpm: porHabitante(g, 'fpm'), atual: m && m.quintil === q
+            };
+        });
+        var q1 = a.porQuintil[1];
+        document.getElementById('texto-quintil').textContent =
+            'No 1º quintil, os municípios com menor receita por habitante, o adicional de mobilidade paga ' + formatarReais(porHabitante(q1, 'mob')) +
+            ' por habitante, contra ' + formatarReais(porHabitante(q1, 'fpm')) + ' do adicional de FPM. Nesse grupo vive ' +
+            formatarPercentual(q1.populacao / br.populacao) + ' da população.';
+        var alvoQuintil = document.getElementById('barras-quintil');
+        alvoQuintil.replaceWith(Object.assign(barrasPareadas(linhasQuintil), { id: 'barras-quintil' }));
+    }
+
+    /* ================= Início ================= */
+
+    function mostrarFalha(erro) {
+        console.error('Falha ao carregar os dados do simulador', { erro: erro });
+        var mesa = document.getElementById('mesa');
+        limpar(mesa);
+        mesa.appendChild(el('div', { classe: 'mesa-corpo' }, [
+            el('p', { classe: 'aviso aviso-erro', role: 'alert' }, [
+                el('strong', { texto: 'Não foi possível carregar os dados dos municípios. ' }),
+                'Verifique a conexão e tente de novo.'
+            ]),
+            el('div', {}, [el('button', { type: 'button', classe: 'btn btn-secondary', onclick: iniciar }, ['Tentar de novo'])])
+        ]));
+        mesa.setAttribute('aria-busy', 'false');
+    }
+
+    function iniciar() {
+        carregarDados().then(function (bruto) {
+            prepararDados(bruto);
+            preencherFatos();
+            campo.disabled = false;
+            document.getElementById('botao-buscar').disabled = false;
+            lerEndereco(false);
+        }).catch(mostrarFalha);
+    }
+    iniciar();
+})();
+</script>
