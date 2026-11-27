@@ -530,12 +530,12 @@ main:focus { outline: none; }
 
         <div class="chapados">
             <section class="chapado" aria-labelledby="titulo-porte">
-                <h2 class="bloco-titulo" id="titulo-porte">Repasse por habitante, conforme o porte</h2>
+                <h2 class="bloco-titulo" id="titulo-porte">Repasse total, conforme o porte</h2>
                 <p class="bloco-subtitulo" id="texto-porte"></p>
                 <div class="barras" id="barras-porte"></div>
             </section>
             <section class="chapado" aria-labelledby="titulo-quintil">
-                <h2 class="bloco-titulo" id="titulo-quintil">Repasse por habitante, conforme a receita do município</h2>
+                <h2 class="bloco-titulo" id="titulo-quintil">Repasse total, conforme a receita do município</h2>
                 <p class="bloco-subtitulo" id="texto-quintil"></p>
                 <div class="barras" id="barras-quintil"></div>
             </section>
@@ -584,8 +584,8 @@ main:focus { outline: none; }
                     <h2 class="bloco-titulo">Como ler esta página</h2>
                     <div class="metodo">
                         <div>
-                            <h3>Valores por habitante</h3>
-                            <p class="texto-corrido">Para cada município, o repasse simulado é dividido pela sua população. Para um grupo (estado, porte ou quintil), somamos os repasses e dividimos pela população somada do grupo, incluindo os municípios fora do rateio.</p>
+                            <h3>Comparações</h3>
+                            <p class="texto-corrido">As comparações entre municípios e grupos (estado, porte ou quintil) usam o valor total do repasse simulado por ano. O valor por habitante aparece só na estimativa de cada município: o repasse simulado dividido pela sua população.</p>
                         </div>
                         <div>
                             <h3>Quintil de receita</h3>
@@ -760,7 +760,6 @@ main:focus { outline: none; }
         grupo.populacao += m.populacao; grupo.repasse += m.repasse; grupo.quantidade += 1;
         if (m.repasse > 0) { grupo.incluidos += 1; grupo.populacaoIncluida += m.populacao; }
     }
-    function porHabitante(grupo) { return grupo.populacao ? grupo.repasse / grupo.populacao : 0; }
 
     /** Lê o JSON embutido (versão de arquivo único) ou busca o arquivo ao lado da página. */
     function carregarDados() {
@@ -806,7 +805,7 @@ main:focus { outline: none; }
 
         // Fora da planilha (arranjos metropolitanos da nota e Fernando de Noronha):
         // entram na busca, mas NÃO nos totais, médias e rankings, porque não têm
-        // população na base e distorceriam o "por habitante".
+        // população na base.
         var colFora = indicesColunas(bruto.colunas_fora, ['ibge', 'nome', 'uf', 'arranjo']);
         (bruto.fora || []).forEach(function (linha) {
             var m = {
@@ -1017,7 +1016,7 @@ main:focus { outline: none; }
     }
 
     /**
-     * Barras de repasse por habitante, todas na escala do maior valor do gráfico.
+     * Barras de repasse simulado total, todas na escala do maior valor do gráfico.
      * @param {Array<{rotulo:string, detalhe?:string, valor:number, atual?:boolean, textoValor?:string}>} linhas
      *   textoValor substitui o número quando zero não é o que se quer dizer ("Não contemplado").
      */
@@ -1033,8 +1032,8 @@ main:focus { outline: none; }
                         el('div', { classe: 'barra-preenchida', style: 'width:' + (l.valor / maximo * 100).toFixed(2) + '%' })
                     ]),
                     el('span', { classe: 'barra-valor' }, [
-                        el('span', { classe: 'sr-only', texto: 'Repasse por habitante: ' }),
-                        l.textoValor || formatarReais(l.valor)
+                        el('span', { classe: 'sr-only', texto: 'Repasse simulado: ' }),
+                        l.textoValor || formatarReaisCurto(l.valor)
                     ])
                 ])
             ]);
@@ -1181,7 +1180,7 @@ main:focus { outline: none; }
     function mostrarMunicipio(m, rolar) {
         if (m.foraDaPlanilha) { mostrarForaDaPlanilha(m, rolar); return; }
         estado.selecionado = m;
-        var a = estado.agregados, br = a.brasil, uf = a.porUf[m.uf], faixa = a.porFaixa[m.faixa], quintil = a.porQuintil[m.quintil];
+        var a = estado.agregados, br = a.brasil, uf = a.porUf[m.uf];
         var incluido = m.repasse > 0;
         var porHab = m.repasse / m.populacao;
         var mesa = document.getElementById('mesa');
@@ -1205,7 +1204,7 @@ main:focus { outline: none; }
                 cartaoNumero({ classe: 'kit-numero-destaque', rotulo: 'Repasse simulado', valor: valorReaisGrande(m.repasse),
                     detalhe: [el('span', { classe: 'num', texto: formatarReais(m.repasse) }), ' por ano'] }),
                 cartaoNumero({ rotulo: 'Repasse por habitante', valor: valorReaisGrande(porHab),
-                    detalhe: ['Média dos incluídos: ', el('span', { classe: 'num', texto: formatarReais(br.repasse / br.populacaoIncluida) })] }),
+                    detalhe: ['por ano, para ' + formatarNumero(m.populacao) + ' habitantes'] }),
                 cartaoNumero({ rotulo: 'Participação no rateio', valor: valorSimplesGrande(formatarPercentual(m.repasse / br.repasse, 2)),
                     detalhe: ['dos ' + formatarReaisCurto(br.repasse) + ' aos ônibus municipais'] })
             ]));
@@ -1232,21 +1231,6 @@ main:focus { outline: none; }
             ]));
         }
         corpo.appendChild(avisoPreliminar());
-
-        // Comparação por habitante com os grupos a que o município pertence.
-        var linhas = [
-            { rotulo: m.nome, detalhe: 'este município', valor: porHab, atual: true, textoValor: incluido ? null : 'Não contemplado' },
-            { rotulo: NOMES_UF[m.uf], detalhe: formatarNumero(uf.quantidade) + ' municípios', valor: porHabitante(uf) },
-            { rotulo: FAIXAS[m.faixa].nome, detalhe: 'mesmo porte', valor: porHabitante(faixa) }
-        ];
-        if (m.quintil) linhas.push({ rotulo: NOMES_QUINTIL[m.quintil], detalhe: 'mesma faixa de receita', valor: porHabitante(quintil) });
-        linhas.push({ rotulo: 'Brasil', detalhe: 'todos os municípios', valor: porHabitante(br) });
-
-        corpo.appendChild(el('section', { classe: 'bloco', 'aria-labelledby': 'titulo-comparacao' }, [
-            el('h3', { classe: 'bloco-titulo', id: 'titulo-comparacao', texto: 'Repasse por habitante, comparado a municípios parecidos' }),
-            el('p', { classe: 'bloco-subtitulo', texto: 'Repasse simulado dividido pela população. Nos grupos, a soma dos repasses sobre a população somada, incluindo quem está fora do rateio.' }),
-            barrasRepasse(linhas)
-        ]));
 
         corpo.appendChild(blocoRanking(m, uf));
         mesa.appendChild(corpo);
@@ -1284,14 +1268,13 @@ main:focus { outline: none; }
                 el('td', { classe: 'num' }, [
                     el('span', { classe: 'col-larga', texto: formatarReais(x.repasse) }),
                     el('span', { classe: 'col-celular', texto: formatarReaisCurto(x.repasse) })
-                ]),
-                el('td', { classe: 'num', texto: formatarReais(x.repasse / x.populacao) })
+                ])
             ]);
         }
         ranking.slice(0, LINHAS_RANKING).forEach(function (x, i) { corpoTabela.appendChild(linha(x, i)); });
         if (posicao >= LINHAS_RANKING) {
             // colspan maior que o número de colunas visíveis é aceito pelo navegador (celular esconde População).
-            if (posicao > LINHAS_RANKING) corpoTabela.appendChild(el('tr', { classe: 'tabela-reticencias' }, [el('td', { colspan: '5', texto: '…' })]));
+            if (posicao > LINHAS_RANKING) corpoTabela.appendChild(el('tr', { classe: 'tabela-reticencias' }, [el('td', { colspan: '4', texto: '…' })]));
             corpoTabela.appendChild(linha(m, posicao));
         }
         bloco.appendChild(el('div', { classe: 'tabela-rolagem' }, [
@@ -1301,8 +1284,7 @@ main:focus { outline: none; }
                     el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Posição' }), el('span', { classe: 'col-celular', texto: 'Pos.' })]),
                     el('th', { scope: 'col', texto: 'Município' }),
                     el('th', { classe: 'num col-larga', scope: 'col', texto: 'População' }),
-                    el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Repasse simulado' }), el('span', { classe: 'col-celular', texto: 'Repasse' })]),
-                    el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Por habitante' }), el('span', { classe: 'col-celular', texto: 'Por hab.' })])
+                    el('th', { classe: 'num', scope: 'col' }, [el('span', { classe: 'col-larga', texto: 'Repasse simulado' }), el('span', { classe: 'col-celular', texto: 'Repasse' })])
                 ])]),
                 corpoTabela
             ])
@@ -1353,27 +1335,27 @@ main:focus { outline: none; }
 
         var linhasPorte = a.porFaixa.map(function (g, i) {
             return {
-                rotulo: FAIXAS[i].nome, detalhe: formatarPercentual(g.populacao / br.populacao) + ' da população',
-                valor: porHabitante(g), atual: m && m.faixa === i
+                rotulo: FAIXAS[i].nome, detalhe: formatarNumero(g.incluidos) + ' municípios incluídos',
+                valor: g.repasse, textoValor: g.repasse ? null : 'Fora do rateio', atual: m && m.faixa === i
             };
         });
         var maiores = a.porFaixa[FAIXAS.length - 1];
         document.getElementById('texto-porte').textContent =
-            'O repasse chega a ' + formatarReais(porHabitante(maiores)) + ' por habitante nas cidades com mais de 500 mil habitantes, onde vive ' +
-            formatarPercentual(maiores.populacao / br.populacao) + ' da população. Municípios com menos de 50 mil habitantes ficam fora do rateio.';
+            'As cidades com mais de 500 mil habitantes recebem ' + formatarReaisCurto(maiores.repasse) + ' por ano, ' +
+            formatarPercentual(maiores.repasse / br.repasse) + ' do total. Municípios com menos de 50 mil habitantes ficam fora do rateio.';
         document.getElementById('barras-porte').replaceWith(barrasRepasse(linhasPorte, 'barras-porte'));
 
         var linhasQuintil = [1, 2, 3, 4, 5, 0].map(function (q) {
             var g = a.porQuintil[q];
             return {
                 rotulo: NOMES_QUINTIL[q], detalhe: DETALHE_QUINTIL[q] || formatarNumero(g.quantidade) + ' municípios',
-                valor: porHabitante(g), atual: m && m.quintil === q
+                valor: g.repasse, textoValor: g.repasse ? null : 'Fora do rateio', atual: m && m.quintil === q
             };
         });
         var q1 = a.porQuintil[1];
         document.getElementById('texto-quintil').textContent =
-            'No 1º quintil, os municípios com menor receita por habitante, o repasse é de ' + formatarReais(porHabitante(q1)) +
-            ' por habitante. Nesse grupo vive ' + formatarPercentual(q1.populacao / br.populacao) + ' da população.';
+            'No 1º quintil, os municípios com menor receita por habitante, o repasse soma ' + formatarReaisCurto(q1.repasse) +
+            ' por ano, ' + formatarPercentual(q1.repasse / br.repasse) + ' do total.';
         document.getElementById('barras-quintil').replaceWith(barrasRepasse(linhasQuintil, 'barras-quintil'));
     }
 

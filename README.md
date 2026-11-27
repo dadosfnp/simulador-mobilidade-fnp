@@ -61,8 +61,9 @@ Link direto para um município: `.../#ibge-3550308` (código IBGE de 7 dígitos)
 
 ## Como a página trata cada município
 
-- **Incluído no rateio** (repasse > 0): repasse simulado por ano, por habitante,
-  participação nos R$ 8 bi, comparação por habitante e ranking no estado.
+- **Incluído no rateio** (repasse > 0): repasse simulado por ano, por habitante
+  (só do próprio município, sem comparar com outros), participação nos R$ 8 bi e
+  ranking no estado pelo valor total.
 - **Na planilha, sem repasse**: "Não contemplado", com o critério da nota (mais de
   50 mil habitantes e transporte coletivo municipal declarado na Pemob).
 - **Arranjos metropolitanos da nota** (Goiânia, Recife, Grande Vitória, Aracaju;
@@ -73,5 +74,5 @@ Link direto para um município: `.../#ibge-3550308` (código IBGE de 7 dígitos)
 
 Outras regras: faixa populacional derivada da população (0 divergências com a
 planilha); quintil do IFEM (https://ifem.fnp.org.br/), 1º = menor receita por
-habitante, vazio = receita não declarada ao Siconfi; valores por habitante de
-grupos = soma dos repasses / soma das populações.
+habitante, vazio = receita não declarada ao Siconfi; comparações entre
+municípios e grupos (porte, quintil, estado) usam só o valor total do repasse.
